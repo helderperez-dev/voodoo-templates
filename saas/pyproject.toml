@@ -1,4 +1,4 @@
 [project]
 name = "voodoo-saas"
 version = "0.1.0"
-dependencies = ["voodoo-framework"]
+dependencies = ["voodoo-framework>=1.0.6"]
