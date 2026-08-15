@@ -1,4 +1,4 @@
-from voodoo.components import Div, Heading, Text, Button
+from voodoo.components import Div, Heading, Text, A
 
 def page(request):
     return Div(
@@ -26,15 +26,17 @@ def page(request):
                 
                 # Action Buttons
                 Div(
-                    Button(
+                    A(
                         "Get Started", 
-                        variant="primary", 
-                        className="bg-white/10 hover:bg-white/20 text-white border border-white/10 px-8 py-3.5 rounded-full font-medium transition-all duration-300 backdrop-blur-md shadow-[0_0_15px_rgba(255,255,255,0.05)]"
+                        href="https://github.com/helderperez-dev/voodoo",
+                        target="_blank",
+                        className="bg-white/10 hover:bg-white/20 text-white border border-white/10 px-8 py-3.5 rounded-full font-medium transition-all duration-300 backdrop-blur-md shadow-[0_0_15px_rgba(255,255,255,0.05)] text-center cursor-pointer"
                     ),
-                    Button(
+                    A(
                         "View Documentation", 
-                        variant="secondary", 
-                        className="bg-transparent hover:bg-white/5 text-white/60 px-8 py-3.5 rounded-full font-medium transition-all duration-300"
+                        href="https://github.com/helderperez-dev/voodoo#readme",
+                        target="_blank",
+                        className="bg-transparent hover:bg-white/5 text-white/60 px-8 py-3.5 rounded-full font-medium transition-all duration-300 text-center cursor-pointer"
                     ),
                     className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-12 w-full"
                 ),
