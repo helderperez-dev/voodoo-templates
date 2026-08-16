@@ -1,4 +1,4 @@
-from voodoo.components import Div, Heading, Text, A
+from voodoo import Div, Heading, Text, A
 
 def page(request):
     return Div(

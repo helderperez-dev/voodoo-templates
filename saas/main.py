@@ -1,6 +1,5 @@
 import uvicorn
-from voodoo.core import create_app
-from voodoo.config import config
+from voodoo import create_app, config
 
 app = create_app()
 
