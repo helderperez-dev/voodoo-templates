@@ -1,4 +1,16 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "voodoo-app"
 version = "0.1.0"
+requires-python = ">=3.12"
 dependencies = ["voodoo-framework>=1.17.0"]
+
+[tool.setuptools]
+# Folder-based routing: `app/` holds page modules and `public/` holds static
+# assets (e.g. the logo). Neither is a distributable Python package, so disable
+# flat-layout auto-discovery — otherwise setuptools treats both as top-level
+# packages and fails the editable build.
+packages = []
