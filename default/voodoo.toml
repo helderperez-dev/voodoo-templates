@@ -1,6 +1,10 @@
 [app]
 name = "voodoo-app"
-# Voodoo CSS is the default style adapter.
+
+# Voodoo CSS is the default style adapter. Customize the look by editing
+# `styles.css` (project-level, appended to the generated component CSS) or by
+# overriding the `--vd-*` design tokens in your theme.
+#
 # To opt into Tailwind instead:
 #   from voodoo import TailwindAdapter, set_style_adapter
 #   set_style_adapter(TailwindAdapter())
