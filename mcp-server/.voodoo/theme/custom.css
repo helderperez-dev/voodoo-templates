@@ -1,0 +1,129 @@
+/* ───────────────────────────────────────────────────────────────────────────
+   Voodoo MCP Server starter — project styles
+   Injected after the framework stylesheet, so every rule here wins.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+body {
+    background:
+        radial-gradient(900px 420px at 16% -12%, var(--vd-color-secondary-glow), transparent 60%),
+        radial-gradient(760px 380px at 104% 2%, color-mix(in srgb, var(--vd-color-secondary) 9%, transparent), transparent 62%),
+        var(--vd-color-background);
+    background-attachment: fixed;
+}
+
+.shell {
+    width: 100%;
+    max-width: 56rem;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.hero {
+    text-align: center;
+    padding: 1rem 0 0.5rem;
+    animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.page-title {
+    font-size: clamp(2.25rem, 6vw, 3.5rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+}
+
+.page-sub {
+    color: var(--vd-color-text-muted);
+    font-size: 1.125rem;
+}
+
+.muted {
+    color: var(--vd-color-text-muted);
+}
+
+.tool-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.tool-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.tool-desc {
+    color: var(--vd-color-text-muted);
+    font-size: 0.9rem;
+}
+
+.resource-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.resource-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.hero-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.6rem 1.15rem;
+    border: 1px solid var(--vd-color-border);
+    border-radius: var(--vd-radius-full);
+    background: var(--vd-color-surface);
+    color: var(--vd-color-text);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: transform var(--vd-motion-fast), border-color var(--vd-motion-fast),
+        color var(--vd-motion-fast);
+}
+
+.hero-link:hover {
+    transform: translateY(-2px);
+    border-color: var(--vd-color-secondary);
+    color: var(--vd-color-secondary);
+}
+
+.hero-link--solid {
+    background: var(--vd-color-secondary);
+    border-color: transparent;
+    color: var(--vd-color-on-secondary);
+}
+
+.hero-link--solid:hover {
+    color: var(--vd-color-on-secondary);
+    border-color: transparent;
+}
+
+@keyframes fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 480px) {
+    .shell {
+        padding: 2rem 1rem 3rem;
+    }
+
+    .page-title {
+        font-size: 2rem;
+    }
+}

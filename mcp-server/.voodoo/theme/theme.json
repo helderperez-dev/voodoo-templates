@@ -1,0 +1,104 @@
+{
+  "name": "default",
+  "version": "1.0.0",
+  "description": "",
+  "author": "",
+  "theme": {
+    "mode": "dark",
+    "colors": {
+      "primary": "#FAFAFA",
+      "primary_hover": "#E4E4E7",
+      "secondary": "#6366F1",
+      "success": "#22C55E",
+      "warning": "#F59E0B",
+      "danger": "#EF4444",
+      "info": "#3B82F6",
+      "background": "#09090B",
+      "surface": "#18181B",
+      "surface_raised": "#27272A",
+      "text": "#FAFAFA",
+      "text_muted": "#A1A1AA",
+      "border": "#27272A",
+      "light_background": "#FFFFFF",
+      "light_surface": "#FAFAFA",
+      "light_surface_raised": "#F4F4F5",
+      "light_text": "#18181B",
+      "light_text_muted": "#71717A",
+      "light_border": "#E4E4E7",
+      "light_primary": "#18181B",
+      "light_primary_hover": "#27272A",
+      "light_secondary": "#6366F1",
+      "on_primary": "#09090B",
+      "on_secondary": "#FFFFFF",
+      "light_on_primary": "#FFFFFF",
+      "light_on_secondary": "#FFFFFF",
+      "extra": {}
+    },
+    "spacing": {
+      "xs": "0.25rem",
+      "sm": "0.5rem",
+      "md": "0.75rem",
+      "lg": "1rem",
+      "xl": "1.5rem",
+      "xxl": "2rem",
+      "xxxl": "3rem"
+    },
+    "radius": {
+      "sm": "0.375rem",
+      "md": "0.5rem",
+      "lg": "0.75rem",
+      "xl": "1rem",
+      "xxl": "1.5rem",
+      "full": "9999px"
+    },
+    "shadows": {
+      "sm": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
+      "md": "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+      "lg": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)"
+    },
+    "motion": {
+      "fast": "150ms",
+      "normal": "200ms",
+      "slow": "300ms"
+    },
+    "typography": {
+      "font_family": "-apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, Helvetica, Arial, sans-serif",
+      "mono_family": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", \"Courier New\", monospace",
+      "display_family": "",
+      "xs": "0.75rem",
+      "sm": "0.875rem",
+      "md": "1rem",
+      "lg": "1.125rem",
+      "xl": "1.25rem",
+      "xxl": "1.5rem",
+      "xxxl": "2rem",
+      "display": "3rem",
+      "tight": "1.2",
+      "normal": "1.5",
+      "relaxed": "1.75",
+      "normal_weight": "400",
+      "medium_weight": "500",
+      "semibold_weight": "600",
+      "bold_weight": "700"
+    },
+    "breakpoints": {
+      "sm": "640px",
+      "md": "768px",
+      "lg": "1024px",
+      "xl": "1280px"
+    },
+    "code": {
+      "background": "#0B0B12",
+      "surface": "#111119",
+      "border": "#232330",
+      "text": "#D6D6E4",
+      "comment": "#71717A",
+      "keyword": "#818CF8",
+      "function": "#7DD3FC",
+      "string": "#86EFAC",
+      "live": "#34D399"
+    },
+    "components": {},
+    "extra_tokens": {}
+  }
+}

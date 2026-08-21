@@ -1,0 +1,22 @@
+[app]
+name = "voodoo-app"
+
+# Theme
+# -----
+# The project theme lives in `.voodoo/theme/`:
+#   theme.json  — a snapshot of the built-in `default` preset (minimalist
+#                 Apple × Linear × Vercel × Raycast look: near-black zinc
+#                 surfaces and an indigo accent).
+#   custom.css  — bespoke chrome, injected after the generated component CSS.
+#
+# When `preset` is omitted (below), Voodoo resolves `.voodoo/theme/theme.json`
+# first, then falls back to the built-in default. Switching themes is just
+# regenerating that directory:
+#
+#   voodoo theme list
+#   voodoo theme use <name|path|url>
+#
+# Built-in presets are zero-network — the default theme uses the system font
+# stack, so no webfonts need loading.
+
+[theme]

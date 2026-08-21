@@ -1,0 +1,15 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "voodoo-ai-agent"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = ["voodoo-framework>=1.18.0"]
+
+[tool.setuptools]
+# The agent + tools live in `main.py` (a module, not a package). Disable
+# flat-layout auto-discovery so setuptools doesn't try to package `app/`
+# or `public/` (neither exists here, but this keeps the template future-proof).
+packages = []

@@ -1,0 +1,147 @@
+/* ───────────────────────────────────────────────────────────────────────────
+   Voodoo AI Agent starter — project styles
+   Injected after the framework stylesheet, so every rule here wins.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+body {
+    background:
+        radial-gradient(900px 420px at 16% -12%, var(--vd-color-secondary-glow), transparent 60%),
+        radial-gradient(760px 380px at 104% 2%, color-mix(in srgb, var(--vd-color-secondary) 9%, transparent), transparent 62%),
+        var(--vd-color-background);
+    background-attachment: fixed;
+}
+
+.shell {
+    width: 100%;
+    max-width: 44rem;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.hero {
+    text-align: center;
+    padding: 1rem 0 0.5rem;
+    animation: fade-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.page-title {
+    font-size: clamp(2.25rem, 6vw, 3.25rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.5rem;
+}
+
+.page-sub {
+    color: var(--vd-color-text-muted);
+    font-size: 1.125rem;
+}
+
+.muted {
+    color: var(--vd-color-text-muted);
+}
+
+.chat-card {
+    padding: 1.25rem;
+}
+
+.chat-head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.agent-output {
+    min-height: 4rem;
+    padding: 1rem;
+    border: 1px solid var(--vd-color-border);
+    border-radius: var(--vd-radius-lg);
+    background: var(--vd-color-surface);
+    margin-bottom: 0.75rem;
+}
+
+.agent-output.thinking .agent-answer {
+    color: var(--vd-color-text-muted);
+    font-style: italic;
+}
+
+.agent-answer {
+    white-space: pre-wrap;
+    line-height: 1.6;
+}
+
+.agent-meta {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--vd-color-text-muted);
+}
+
+.agent-log {
+    max-height: 10rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.5rem 0;
+    margin-bottom: 0.75rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+        "Liberation Mono", "Courier New", monospace;
+    font-size: 0.8rem;
+    color: var(--vd-color-text-muted);
+}
+
+.log-line {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.log-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    background: var(--vd-color-secondary);
+    flex-shrink: 0;
+}
+
+.log-line--ok .log-dot {
+    background: var(--vd-color-success);
+}
+
+.chat-controls {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.chat-input {
+    flex: 1;
+}
+
+@keyframes fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 480px) {
+    .shell {
+        padding: 2rem 1rem 3rem;
+    }
+
+    .page-title {
+        font-size: 2rem;
+    }
+
+    .chat-controls {
+        flex-direction: column;
+    }
+}
