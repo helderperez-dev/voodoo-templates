@@ -3,16 +3,28 @@
 Run:
     voodoo dev          # -> http://localhost:8000
 
-Uses an offline ``demo:demo`` provider (see provider.py) that deterministically
-performs one tool call, then answers — no network, no API keys. To use a real
-model once you have keys, swap the model string and drop the register call:
+Two providers are wired up (see provider.py):
 
-    agent = Agent(model="openai:gpt-4o", tools=[...])
-    agent = Agent(model="anthropic:claude-3-opus", tools=[...])
+* ``demo:demo`` — fully offline; performs one deterministic tool call, then
+  answers. Used automatically when no API key is set, so the template runs
+  with zero setup.
+
+* ``deepseek:<model>`` — a real DeepSeek model served through an
+  OpenAI-compatible (LiteLLM) endpoint. Credentials come from ``.env``:
+
+      DEEPSEEK_API_KEY=sk-...
+      DEEPSEEK_BASE_URL=https://.../v1
+      DEEPSEEK_MODEL=deepseek/deepseek-v4-flash-0731
+
+  Copy ``.env.example`` to ``.env`` and fill in the key to switch to the live
+  model. Point ``DEEPSEEK_BASE_URL`` at any OpenAI-compatible endpoint to use a
+  different model provider — no code changes required.
 
 Realtime: mesh events stream agent activity to the browser over the WebSocket
 transport — no hand-written JavaScript.
 """
+
+import os
 
 from voodoo import (
     Agent,
@@ -30,10 +42,15 @@ from voodoo import (
     tool,
     ws_manager,
 )
+from dotenv import load_dotenv
 from voodoo.ai.providers import register_provider
 from voodoo.mesh import mesh
 from voodoo.routing.api import api
 from voodoo.seo import SEO
+
+# Load .env before reading provider credentials (voodoo also loads it, but we
+# make it explicit so the template works when imported standalone).
+load_dotenv()
 
 # The MCP SSE handshake returns a StreamingResponse, which the runtime engine
 # can't JSON-serialize. Disable run-through-runtime for API routes (the agent
@@ -42,9 +59,21 @@ api.run_through_runtime = False
 
 app = App()
 
-# Register the offline demo provider under the ``demo`` prefix so the Agent can
-# resolve ``demo:demo``. Remove this line when switching to a real provider.
+# Register both providers so they resolve as ``demo:demo`` and ``deepseek:<model>``.
 register_provider("demo", "provider.DemoProvider")
+register_provider("deepseek", "provider.DeepSeekProvider")
+
+# Pick a real model when a key is present; otherwise fall back to the offline
+# demo so the template still runs with zero setup.
+DEEPSEEK_MODEL = os.getenv("DEEPSEEK_MODEL", "deepseek/deepseek-v4-flash-0731")
+if os.getenv("DEEPSEEK_API_KEY"):
+    MODEL = f"deepseek:{DEEPSEEK_MODEL}"
+    MODEL_LABEL = DEEPSEEK_MODEL
+    MODEL_SUB = "DeepSeek · tool calling · live"
+else:
+    MODEL = "demo:demo"
+    MODEL_LABEL = "demo:demo"
+    MODEL_SUB = "offline · tool calling · zero network"
 
 
 # ───────────────────────────────────────────────────────────────────────
@@ -74,11 +103,11 @@ async def count_words(text: str) -> int:
 
 
 # ───────────────────────────────────────────────────────────────────────
-# 2. Agent — offline demo provider (deterministic, zero keys)
+# 2. Agent — demo (offline) or deepseek (from .env)
 # ───────────────────────────────────────────────────────────────────────
 
 agent = Agent(
-    model="demo:demo",
+    model=MODEL,
     tools=["get_time", "roll_dice", "count_words"],
     system_prompt=(
         "You are a helpful assistant. Use the available tools when the user "
@@ -144,15 +173,15 @@ def home():
         Div(
             Heading("AI Agent", level=1, class_="page-title"),
             Text(
-                "An agent with tool calling and a realtime trace — no API keys needed.",
+                "An agent with tool calling and a realtime trace — offline or your own LLM.",
                 class_="page-sub",
             ),
             class_="hero",
         ),
         Card(
             Div(
-                Badge("demo:demo"),
-                Text("offline · tool calling · zero network", class_="muted"),
+                Badge(MODEL_LABEL),
+                Text(MODEL_SUB, class_="muted"),
                 class_="chat-head",
             ),
             Div(

@@ -1,9 +1,14 @@
 # Voodoo AI Agent
 
 An AI agent with tool calling, streaming, and a realtime trace — all rendered
-from Python, no hand-written JavaScript. Ships with an offline `demo:demo`
-provider that deterministically performs a real tool call, so you can see the
-full loop with zero API keys.
+from Python, no hand-written JavaScript.
+
+It ships with **two providers** and picks automatically:
+
+- **`deepseek:<model>`** — a real model served through an OpenAI-compatible
+  (LiteLLM) endpoint. Used when a key is present in `.env`.
+- **`demo:demo`** — fully offline, deterministically performs one real tool
+  call. Used as the fallback so the template runs with zero setup.
 
 ## Run
 
@@ -15,22 +20,58 @@ Open http://localhost:8000 and click **Run**. The agent calls `get_time`, then
 composes a final answer from the tool result — and its activity streams into
 the browser log in realtime over the WebSocket transport.
 
+## Use a real model (DeepSeek via `.env`)
+
+The live provider reads its credentials from environment variables loaded from
+`.env`:
+
+```bash
+cp .env.example .env
+```
+
+Then edit `.env`:
+
+```dotenv
+DEEPSEEK_API_KEY=sk-...
+DEEPSEEK_BASE_URL=https://litellm-database-production-6802.up.railway.app/v1
+DEEPSEEK_MODEL=deepseek/deepseek-v4-flash-0731
+```
+
+| Variable            | Purpose                                                        |
+| ------------------- | -------------------------------------------------------------- |
+| `DEEPSEEK_API_KEY`  | API key for the endpoint. When unset, the demo provider is used. |
+| `DEEPSEEK_BASE_URL` | Any OpenAI-compatible base URL (defaults to the OpenAI API).    |
+| `DEEPSEEK_MODEL`    | Model id passed to the endpoint.                                |
+
+Because the provider talks plain OpenAI chat-completions, you can point
+`DEEPSEEK_BASE_URL` at any compatible gateway — DeepSeek, OpenRouter, Ollama,
+vLLM, etc. — with no code changes.
+
+> **Dependencies**: the provider uses the `openai` SDK and `python-dotenv`,
+> both of which ship as dependencies of `voodoo-framework`, so a normal
+> `voodoo new` / `.venv` install already has them.
+
 ## How it works
 
 - `@tool` registers `get_time`, `roll_dice`, and `count_words` in the shared
   `ToolRegistry`. The agent gets them by name via `tools=[...]`.
-- `provider.py` defines `DemoProvider`, an offline provider that first returns
-  a `[TOOL: get_time]` request and then answers from the tool result.
-  `register_provider("demo", "provider.DemoProvider")` makes it resolvable as
-  `demo:demo`.
-- `Agent(model="demo:demo", ...)` runs the tool-call loop with no network.
+- `provider.py` defines two providers:
+  - `DemoProvider` — offline; first returns `[TOOL: get_time]`, then answers
+    from the tool result.
+  - `DeepSeekProvider` — a `LLMProvider` subclass that wraps
+    `openai.AsyncOpenAI`, translates the agent's tool specs into OpenAI
+    function-call form, and maps native tool calls back to the agent's
+    `[TOOL: ...]` convention.
+- `main.py` registers both via `register_provider(...)` so they resolve as
+  `demo:demo` and `deepseek:<model>`, then selects the model based on whether
+  `DEEPSEEK_API_KEY` is set.
 - Mesh events (`agent.started`, `agent.tool.started`, `agent.completed`) are
   handled with `@mesh.on(...)` and pushed to the browser with
   `ws_manager.broadcast_append(...)`.
 - The final answer is patched into the DOM with
   `ws_manager.broadcast_patch(...)` after `await agent.run(...)`.
 
-## Swap in a real model
+## Swap in another framework provider
 
 Set the relevant provider key, change the model string, and drop the
 `register_provider(...)` line:
@@ -55,7 +96,8 @@ Replace `agent.run(...)` with `agent.stream(...)` and patch the output for each
 
 ```
 main.py              # tools, agent, mesh handlers, chat UI
-provider.py          # offline demo provider (tool-call loop)
+provider.py          # demo + deepseek providers (tool-call loop)
+.env.example         # template for the DeepSeek credentials
 voodoo.toml          # app config
 .voodoo/theme/       # theme snapshot + bespoke styles
 ```

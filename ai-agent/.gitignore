@@ -1,5 +1,10 @@
 __pycache__/
+*.egg-info/
 .venv/
 .data/
 .voodoo/*
 !.voodoo/theme/
+
+# Secrets — copy .env.example to .env
+.env
+!.env.example
