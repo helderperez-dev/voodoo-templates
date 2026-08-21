@@ -25,6 +25,7 @@ transport — no hand-written JavaScript.
 """
 
 import os
+from pathlib import Path
 
 from voodoo import (
     Agent,
@@ -49,8 +50,9 @@ from voodoo.routing.api import api
 from voodoo.seo import SEO
 
 # Load .env before reading provider credentials (voodoo also loads it, but we
-# make it explicit so the template works when imported standalone).
-load_dotenv()
+# make it explicit so the template works when imported standalone). Anchor the
+# path to this file so it resolves regardless of the process working directory.
+load_dotenv(Path(__file__).resolve().with_name(".env"))
 
 # The MCP SSE handshake returns a StreamingResponse, which the runtime engine
 # can't JSON-serialize. Disable run-through-runtime for API routes (the agent
