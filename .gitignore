@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+
+# Voodoo runtime state at the repo root only (SQLite databases, object store,
+# queues). Sub-projects (e.g. default/) manage their own ignores and may ship
+# a .voodoo/theme/ directory.
+/.data/
+/.voodoo/
+
+# macOS
+.DS_Store

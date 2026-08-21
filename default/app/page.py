@@ -1,158 +1,75 @@
-"""Home route — app/page.py maps to / via folder-based routing.
+"""Voodoo starter — a single route. Add more by dropping a page.py in a folder."""
 
-A minimalist starter that shows what Voodoo gives you out of the box: build
-the whole UI in Python, let folders drive your routes, and theme every
-component through `--vd-*` design tokens.
-"""
-from voodoo import A, Badge, Button, Card, Div, Flex, Grid, Heading, Page, Stack, Text
-from voodoo.seo import SEO
-from voodoo.ui import Img
+from voodoo import (
+    A,
+    Brand,
+    Flex,
+    Heading,
+    Img,
+    Stack,
+    Text,
+    ThemeToggle,
+)
+from voodoo.seo import OpenGraph, SEO
+from voodoo.ui.component import Html
 
-
-def _brand_logo(class_: str = "") -> Flex:
-    """White wordmark for dark mode + black wordmark for light mode."""
-    return Flex(
-        Img(
-            src="/public/voodoo-logo-white.png",
-            alt="Voodoo",
-            class_=f"brand-logo brand-logo--on-dark {class_}".strip(),
-        ),
-        Img(
-            src="/public/voodoo-logo-black.png",
-            alt="Voodoo",
-            class_=f"brand-logo brand-logo--on-light {class_}".strip(),
-        ),
-    )
+_GH_URL = "https://github.com/helderperez-dev/voodoo"
+_DOCS_URL = "https://github.com/helderperez-dev/voodoo#readme"
 
 
-def _feature(badge: str, title: str, body: str) -> Card:
-    """A capability card: eyebrow badge, heading, and muted description."""
-    return Card(
-        Stack(
-            Badge(badge, variant="secondary"),
-            Heading(title, level=3),
-            Text(body, tone="muted"),
-            gap="sm",
-        ),
-        class_="feature-card",
+def _logo() -> Brand:
+    """One black wordmark; custom.css inverts it to white in dark mode."""
+    return Brand(
+        Img(src="/public/voodoo-logo-black.png", alt="Voodoo", class_="brand-logo"),
+        href="/",
     )
 
 
 def page(request):
     seo = SEO(
-        title="Voodoo",
-        description="A minimalist Voodoo starter — Python UI, folder routing, "
-        "and themeable design tokens.",
-    )
-
-    nav = Flex(
-        _brand_logo(),
-        Flex(
-            A("About", href="/about"),
-            A("Users", href="/users/42"),
-            Button(
-                "Get started",
-                variant="primary",
-                size="sm",
-                onclick="location.href='/about'",
-            ),
-            direction="row",
-            items="center",
-            gap="lg",
+        title="Voodoo App",
+        description="One runtime for adaptive software.",
+        og=OpenGraph(
+            title="Voodoo App",
+            description="One runtime for adaptive software.",
+            type="website",
+            site_name="Voodoo",
         ),
-        justify="between",
-        items="center",
-        class_="site-nav",
     )
 
     hero = Stack(
-        _brand_logo("brand-logo--hero"),
-        Heading("Build your UI in Python", level=1, size="display"),
+        _logo(),
+        Heading(
+            "One runtime for ",
+            Html('<span class="accent">adaptive</span>'),
+            " software.",
+            level=1,
+            class_="hero-title",
+        ),
         Text(
-            "One runtime for web, APIs, agents, workers, and realtime — "
-            "rendered with semantic components and themeable tokens.",
-            tone="muted",
+            "Web, APIs, agents, and events — first-class in Python.",
+            class_="hero-sub",
         ),
         Flex(
-            Button(
-                "Get started",
-                variant="primary",
-                size="lg",
-                onclick="location.href='/about'",
-            ),
-            A("View a dynamic route →", href="/users/42"),
+            A("GitHub", href=_GH_URL, target="_blank", class_="hero-link hero-link--solid"),
+            A("Docs", href=_DOCS_URL, target="_blank", class_="hero-link"),
             direction="row",
-            justify="center",
             items="center",
+            justify="center",
             gap="md",
+            wrap="wrap",
         ),
-        items="center",
         gap="lg",
+        items="center",
         class_="hero",
     )
 
-    features = Grid(
-        _feature(
-            "Routing",
-            "Folder-based",
-            "app/page.py → /. Drop app/about/page.py and /about exists — "
-            "zero wiring.",
-        ),
-        _feature(
-            "Components",
-            "Semantic UI",
-            "Button, Card, Grid, Stack… emit vd-* classes resolved by your "
-            "theme tokens.",
-        ),
-        _feature(
-            "Theming",
-            "Tokens, not CSS",
-            "Change a --vd-* token and every component restyles instantly, "
-            "dark or light.",
-        ),
-        _feature(
-            "Realtime",
-            "Mesh events",
-            "A websocket bus streams DOM patches to every connected client, "
-            "live.",
-        ),
-        _feature(
-            "Workers",
-            "Durable tasks",
-            "Decorate a function with @task and run it on a background queue.",
-        ),
-        _feature(
-            "Agents",
-            "AI, optional",
-            "Agents hold capabilities and execute intents — AI is compute, "
-            "never required.",
-        ),
-        cols="3",
-        gap="md",
-    )
-
-    footer = Flex(
-        Text("Built with Voodoo", tone="muted"),
-        A(
-            "GitHub",
-            href="https://github.com/helderperez-dev/voodoo",
-            target="_blank",
-        ),
-        justify="between",
+    ui = Flex(
+        hero,
+        ThemeToggle(class_="theme-fab"),
+        justify="center",
         items="center",
-        class_="site-footer",
-    )
-
-    ui = Div(
-        nav,
-        Page(
-            Stack(
-                hero,
-                features,
-                gap="xxl",
-            )
-        ),
-        footer,
+        class_="shell",
     )
 
     return seo, ui

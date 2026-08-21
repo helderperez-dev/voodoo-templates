@@ -1,0 +1,183 @@
+/* ───────────────────────────────────────────────────────────────────────────
+   Voodoo starter — project styles
+   ---------------------------------------------------------------------------
+   Loaded from `.voodoo/theme/custom.css` and injected AFTER the framework
+   stylesheet, so every rule here wins. Add bespoke chrome for your app here.
+
+   Theme tokens (colors, typography, radius, motion, code palette) live in
+   `.voodoo/theme/theme.json`. Reference `--vd-*` tokens instead of hardcoding
+   brand values.
+
+   Switch themes with:  voodoo theme use <name|path|url>
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── 1. Base ─────────────────────────────────────────────────────────────── */
+
+::selection {
+    background: var(--vd-color-secondary-soft);
+    color: var(--vd-color-text);
+}
+
+/* A faint indigo aurora over the near-black canvas. */
+body {
+    background:
+        radial-gradient(900px 420px at 16% -12%, var(--vd-color-secondary-glow), transparent 60%),
+        radial-gradient(760px 380px at 104% 2%, color-mix(in srgb, var(--vd-color-secondary) 9%, transparent), transparent 62%),
+        var(--vd-color-background);
+    background-attachment: fixed;
+}
+
+/* Slim, theme-aware scrollbars (kept subtle in case a short viewport overflows). */
+html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--vd-color-border) transparent;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--vd-color-border);
+    border-radius: var(--vd-radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--vd-color-text-muted);
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* ── 2. Brand logo ───────────────────────────────────────────────────────── */
+
+/* One black wordmark, inverted to white on dark — no duplicate <img>. The
+   framework rounds every image; the "V" sits flush to the edge, so reset. */
+.vd-brand .brand-logo {
+    display: block;
+    height: 1.75rem;
+    width: auto;
+    border-radius: 0;
+    overflow: visible;
+}
+
+html.dark .vd-brand .brand-logo {
+    filter: invert(1);
+}
+
+/* ── 3. Shell ────────────────────────────────────────────────────────────── */
+
+/* Full-viewport centered column — logo, slogan, and links together. */
+.shell {
+    min-height: 100vh;
+    padding: 2rem 1rem 3rem;
+}
+
+/* Floating corner toggle — kept out of the logo's way. */
+.theme-fab {
+    position: fixed;
+    top: 1.25rem;
+    right: 1.25rem;
+    z-index: 10;
+}
+
+/* ── 4. Hero ─────────────────────────────────────────────────────────────── */
+
+.hero {
+    width: 100%;
+    max-width: 46rem;
+    text-align: center;
+    animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.hero-title {
+    font-size: clamp(2.5rem, 7vw, 4rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+}
+
+/* The accent word — italic indigo with a marker-swipe highlight. */
+.accent {
+    font-style: italic;
+    color: var(--vd-color-secondary);
+    position: relative;
+    white-space: nowrap;
+}
+
+.accent::after {
+    content: "";
+    position: absolute;
+    left: -3%;
+    right: -3%;
+    bottom: 0.08em;
+    height: 0.32em;
+    background: var(--vd-color-secondary-soft);
+    border-radius: 3px;
+    z-index: -1;
+}
+
+.hero-sub {
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: var(--vd-color-text-muted);
+    max-width: 44ch;
+    margin: 0 auto;
+}
+
+/* Centered pill links — GitHub (solid) + Docs (outline). */
+.hero-link {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.6rem 1.15rem;
+    border: 1px solid var(--vd-color-border);
+    border-radius: var(--vd-radius-full);
+    background: var(--vd-color-surface);
+    color: var(--vd-color-text);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: transform var(--vd-motion-fast), border-color var(--vd-motion-fast),
+        color var(--vd-motion-fast);
+}
+
+.hero-link:hover {
+    transform: translateY(-2px);
+    border-color: var(--vd-color-secondary);
+    color: var(--vd-color-secondary);
+}
+
+.hero-link--solid {
+    background: var(--vd-color-secondary);
+    border-color: transparent;
+    color: var(--vd-color-on-secondary);
+}
+
+.hero-link--solid:hover {
+    color: var(--vd-color-on-secondary);
+    border-color: transparent;
+}
+
+/* ── 5. Motion ───────────────────────────────────────────────────────────── */
+
+@keyframes fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 2.25rem;
+    }
+
+    .shell {
+        padding: 1.5rem 1rem 2rem;
+    }
+}

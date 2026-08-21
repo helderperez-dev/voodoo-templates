@@ -1,0 +1,802 @@
+/* ───────────────────────────────────────────────────────────────────────────
+   Voodoo starter — default theme chrome
+   ---------------------------------------------------------------------------
+   Loaded from `.voodoo/theme/custom.css` and injected AFTER the framework
+   stylesheet, so every rule here wins.
+
+   Tokens (colors, typography, radius, motion, code palette) come from
+   `.voodoo/theme/theme.json` — a snapshot of the built-in `default` preset
+   (near-black zinc surfaces and an indigo accent). This file only adds
+   bespoke chrome the token set does not model, and it references `--vd-*`
+   tokens instead of hardcoding brand values.
+
+   Switch themes with:  voodoo theme use <name|path|url>
+   ─────────────────────────────────────────────────────────────────────────── */
+
+/* ── 1. Base ─────────────────────────────────────────────────────────────── */
+
+::selection {
+    background: var(--vd-color-secondary-soft);
+    color: var(--vd-color-text);
+}
+
+/* A faint indigo aurora over the near-black zinc canvas. */
+body {
+    background:
+        radial-gradient(900px 420px at 16% -12%, var(--vd-color-secondary-glow), transparent 60%),
+        radial-gradient(760px 380px at 104% 2%, color-mix(in srgb, var(--vd-color-secondary) 9%, transparent), transparent 62%),
+        var(--vd-color-background);
+    background-attachment: fixed;
+}
+
+/* Slim, theme-aware scrollbars. */
+html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--vd-color-border) transparent;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--vd-color-border);
+    border-radius: var(--vd-radius-full);
+    border: 2px solid var(--vd-color-background);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--vd-color-text-muted);
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Headings stay at the framework default (bold sans-serif) — the default
+   theme is intentionally sans throughout, so no display face is forced. */
+
+/* Eyebrows read as a mono pill — routes & section labels. */
+.vd-eyebrow {
+    font-family: var(--vd-font-mono);
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    color: var(--vd-color-secondary);
+    background: var(--vd-color-secondary-soft);
+    border: 1px solid var(--vd-color-secondary-line);
+    padding: 0.32rem 0.8rem;
+    border-radius: var(--vd-radius-full);
+}
+
+/* ── 2. Brand logo ───────────────────────────────────────────────────────── */
+
+.vd-brand {
+    display: inline-flex;
+    align-items: center;
+}
+
+/* One black wordmark, inverted to white on dark — no duplicate <img>.
+   The framework's `.vd-img` rounds every image 8px; the wordmark's "V" sits
+   flush to the canvas edge, so we reset the radius here to avoid clipping it. */
+.vd-brand .brand-logo {
+    display: block;
+    height: 1.75rem;
+    width: auto;
+    border-radius: 0;
+    overflow: visible;
+}
+
+html.dark .vd-brand .brand-logo {
+    filter: invert(1);
+}
+
+/* ── 3. Site nav ─────────────────────────────────────────────────────────── */
+
+/* The navbar becomes a full-width blur bar; its content is centered in the
+   same 64rem column as the page so the brand and headings align. */
+.vd-navbar {
+    padding: 0.75rem 0;
+}
+
+.nav-inner {
+    width: 100%;
+    max-width: 64rem;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+.nav-links {
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+}
+
+.nav-actions {
+    flex-shrink: 0;
+}
+
+/* Page shell matches the nav column: 64rem wide, 1rem gutters. */
+.vd-page--pad {
+    padding: var(--vd-space-xxl) var(--vd-space-lg);
+}
+
+/* Visually-hidden checkbox that drives the mobile menu (pure CSS toggle). */
+.nav-toggle {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Hamburger — hidden on desktop, shown below the md breakpoint. */
+.nav-toggle-btn {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0.5rem;
+    border-radius: var(--vd-radius-md);
+    border: 1px solid var(--vd-color-border);
+    background: var(--vd-color-surface);
+    cursor: pointer;
+    transition: background var(--vd-motion-normal), border-color var(--vd-motion-normal);
+}
+
+.nav-toggle-btn:hover {
+    background: var(--vd-color-surface-raised);
+}
+
+.nav-toggle-btn span {
+    display: block;
+    width: 100%;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--vd-color-text);
+    transition: transform var(--vd-motion-normal) cubic-bezier(0.22, 1, 0.36, 1),
+        opacity var(--vd-motion-normal);
+}
+
+/* Collapse the three bars into an ✕ while the menu is open. */
+.nav-toggle:checked~.nav-inner .nav-toggle-btn span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+}
+
+.nav-toggle:checked~.nav-inner .nav-toggle-btn span:nth-child(2) {
+    opacity: 0;
+}
+
+.nav-toggle:checked~.nav-inner .nav-toggle-btn span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+}
+
+/* Keyboard focus ring on the toggle. */
+.nav-toggle:focus-visible~.nav-inner .nav-toggle-btn {
+    outline: 2px solid var(--vd-color-secondary);
+    outline-offset: 2px;
+}
+
+/* Mobile menu — a full-width sheet that slides down from the bar. */
+.nav-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    padding: 0 1rem 1.25rem;
+    background: color-mix(in srgb, var(--vd-color-background) 96%, transparent);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--vd-color-border);
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transform: translateY(-8px);
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity var(--vd-motion-normal) ease,
+        transform var(--vd-motion-normal) cubic-bezier(0.22, 1, 0.36, 1),
+        visibility 0s linear var(--vd-motion-normal);
+}
+
+.nav-toggle:checked~.nav-menu {
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+    pointer-events: auto;
+    transition: opacity var(--vd-motion-normal) ease,
+        transform var(--vd-motion-normal) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nav-menu__inner {
+    width: 100%;
+    max-width: 64rem;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--vd-color-border);
+}
+
+.nav-menu .vd-nav-link {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    font-size: var(--vd-text-md);
+    border-radius: var(--vd-radius-lg);
+}
+
+.nav-menu .vd-divider {
+    margin: 0.25rem 0;
+    opacity: 0.6;
+}
+
+.nav-menu-cta {
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+/* ── 4. Hero ─────────────────────────────────────────────────────────────── */
+
+.hero-grid {
+    display: grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 3.5rem;
+    align-items: center;
+    padding: 3.5rem 0 1rem;
+    animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Announcement pill above the hero headline. */
+.hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    width: fit-content;
+    padding: 0.32rem 0.85rem;
+    font-family: var(--vd-font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.02em;
+    color: var(--vd-color-text-muted);
+    background: var(--vd-color-surface);
+    border: 1px solid var(--vd-color-border);
+    border-radius: var(--vd-radius-full);
+}
+
+.badge-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--vd-color-secondary);
+    box-shadow: 0 0 0 3px var(--vd-color-secondary-soft);
+}
+
+.hero-title {
+    font-size: clamp(2.75rem, 6vw, 4.25rem);
+    line-height: 1.03;
+    letter-spacing: -0.02em;
+}
+
+/* The italic accent word — highlighted like a marker swipe. */
+.accent-italic {
+    font-style: italic;
+    color: var(--vd-color-secondary);
+    position: relative;
+    white-space: nowrap;
+}
+
+.accent-italic::after {
+    content: "";
+    position: absolute;
+    left: -3%;
+    right: -3%;
+    bottom: 0.08em;
+    height: 0.32em;
+    background: var(--vd-color-secondary-soft);
+    border-radius: 3px;
+    z-index: -1;
+}
+
+.hero-sub {
+    font-size: 1.125rem;
+    line-height: 1.65;
+    color: var(--vd-color-text-muted);
+    max-width: 52ch;
+}
+
+/* "$ pip install …" hint under the CTAs. */
+.hint-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    width: fit-content;
+    padding: 0.5rem 0.9rem;
+    background: var(--vd-color-surface);
+    border: 1px solid var(--vd-color-border);
+    border-radius: var(--vd-radius-md);
+    font-family: var(--vd-font-mono);
+    font-size: 0.8125rem;
+    color: var(--vd-color-text-muted);
+}
+
+.hint-prompt {
+    color: var(--vd-color-secondary);
+    font-weight: 500;
+}
+
+.hint-cmd {
+    font-family: var(--vd-font-mono);
+    font-size: 0.8125rem;
+    color: var(--vd-color-text-muted);
+}
+
+/* ── 5. Code card ────────────────────────────────────────────────────────── */
+
+/* A fixed dark terminal — reads as a "window" in both themes. */
+.code-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--vd-radius-xl);
+    background:
+        radial-gradient(420px 220px at 100% 0%, color-mix(in srgb, var(--vd-color-secondary) 14%, transparent), transparent 70%),
+        var(--vd-code-background);
+    border: 1px solid color-mix(in srgb, var(--vd-color-secondary) 26%, var(--vd-color-border));
+    box-shadow:
+        0 28px 60px -28px rgb(0 0 0 / 0.5),
+        0 0 0 1px color-mix(in srgb, var(--vd-color-secondary) 12%, transparent);
+}
+
+.code-card__bar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.7rem 1rem;
+    background: var(--vd-code-surface);
+    border-bottom: 1px solid var(--vd-code-border);
+}
+
+.code-dots {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.code-dots i {
+    display: inline-block;
+    width: 0.65rem;
+    height: 0.65rem;
+    border-radius: 50%;
+}
+
+.code-dots i:nth-child(1) {
+    background: #ff5f57;
+}
+
+.code-dots i:nth-child(2) {
+    background: #febc2e;
+}
+
+.code-dots i:nth-child(3) {
+    background: #28c840;
+}
+
+.code-file {
+    font-family: var(--vd-font-mono);
+    font-size: 0.75rem;
+    color: var(--vd-code-text);
+    opacity: 0.8;
+}
+
+.code-live {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-left: auto;
+    font-family: var(--vd-font-mono);
+    font-size: 0.625rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--vd-code-live);
+}
+
+.code-live::before {
+    content: "";
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: 50%;
+    background: var(--vd-code-live);
+    animation: pulse 2.2s ease-in-out infinite;
+}
+
+/* The native CodeBlock fills the dark card edge-to-edge. */
+.code-card__code {
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    color: var(--vd-code-text);
+    font-size: 0.8125rem;
+    line-height: 1.6;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.code-card__code::-webkit-scrollbar {
+    display: none;
+}
+
+/* Wrapper so the terminal can fade its right edge on narrow screens. */
+.code-card__body {
+    position: relative;
+}
+
+.code-card__body::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 2.25rem;
+    background: linear-gradient(to left, var(--vd-code-background), transparent);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--vd-motion-normal);
+}
+
+@media (max-width: 480px) {
+    .code-card__body::after {
+        opacity: 1;
+    }
+}
+
+/* Terminal syntax palette — mapped to the theme's code tokens. */
+.tok-com {
+    color: var(--vd-code-comment);
+    font-style: italic;
+}
+
+.tok-kw {
+    color: var(--vd-code-keyword);
+}
+
+.tok-fn {
+    color: var(--vd-code-function);
+}
+
+.tok-str {
+    color: var(--vd-code-string);
+}
+
+/* ── 6. Stats strip ──────────────────────────────────────────────────────── */
+
+/* Editorial stats: a hairline-bounded strip rather than bordered cards. */
+.vd-stats {
+    gap: 1.5rem;
+    margin: 1rem 0 0;
+    padding: 2.25rem 0;
+    border-top: 1px solid var(--vd-color-border);
+    border-bottom: 1px solid var(--vd-color-border);
+    animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+}
+
+.vd-stat {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    gap: 0.4rem;
+}
+
+.vd-stat-value {
+    font-size: 2.5rem;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.02em;
+}
+
+.vd-stat-label {
+    font-family: var(--vd-font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+/* ── 7. Features ─────────────────────────────────────────────────────────── */
+
+.section {
+    padding: 4.5rem 0 0;
+    animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.22s both;
+}
+
+.section-title {
+    font-size: clamp(1.9rem, 4vw, 2.6rem);
+    line-height: 1.1;
+}
+
+.section-sub {
+    color: var(--vd-color-text-muted);
+    max-width: 46ch;
+}
+
+.feature-num {
+    font-family: var(--vd-font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    color: var(--vd-color-secondary);
+}
+
+/* A hairline accent slides in across the top of the card on hover. */
+.vd-feature-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.vd-feature-card::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--vd-color-secondary), transparent 70%);
+    opacity: 0;
+    transition: opacity var(--vd-motion-normal);
+}
+
+.vd-feature-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--vd-color-secondary-line);
+}
+
+.vd-feature-card:hover::before {
+    opacity: 1;
+}
+
+.vd-feature-card .vd-heading--h3 {
+    font-size: 1.2rem;
+    margin-top: 0.25rem;
+}
+
+/* Quick-start steps — a mono command chip inside each card. */
+.step-cmd {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: fit-content;
+    padding: 0.5rem 0.8rem;
+    font-family: var(--vd-font-mono);
+    font-size: 0.8125rem;
+    color: var(--vd-color-secondary);
+    background: var(--vd-color-secondary-soft);
+    border: 1px solid var(--vd-color-secondary-line);
+    border-radius: var(--vd-radius-md);
+}
+
+.step-cmd::before {
+    content: "$";
+    font-weight: 500;
+    opacity: 0.7;
+}
+
+/* ── 8. CTA band ─────────────────────────────────────────────────────────── */
+
+/* A dark accent band — indigo glows over a flat surface, matching the
+   code card's language instead of a washed-out diagonal gradient. */
+.vd-cta-band {
+    position: relative;
+    overflow: hidden;
+    margin: 4.5rem 0 1rem;
+    padding: 3.25rem 2.5rem;
+    border-radius: var(--vd-radius-xl);
+    border: 1px solid var(--vd-color-secondary-line);
+    background:
+        radial-gradient(640px 340px at 85% -70%, color-mix(in srgb, var(--vd-color-secondary) 26%, transparent), transparent 70%),
+        radial-gradient(480px 260px at -5% 120%, color-mix(in srgb, var(--vd-color-secondary) 12%, transparent), transparent 72%),
+        var(--vd-color-surface);
+    box-shadow:
+        0 28px 60px -28px rgb(0 0 0 / 0.5),
+        0 0 0 1px color-mix(in srgb, var(--vd-color-secondary) 10%, transparent);
+    animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.32s both;
+}
+
+.cta-title {
+    font-size: clamp(1.75rem, 4vw, 2.4rem);
+}
+
+.cta-sub {
+    color: var(--vd-color-text-muted);
+    max-width: 46ch;
+}
+
+/* The band's main CTA is the indigo accent button; a soft glow keeps it
+   readable against the band's own indigo haze. */
+.vd-cta-band .vd-button--secondary {
+    box-shadow: 0 12px 32px -12px color-mix(in srgb, var(--vd-color-secondary) 72%, transparent);
+}
+
+.vd-cta-band .vd-button--outline {
+    background: color-mix(in srgb, var(--vd-color-surface) 42%, transparent);
+    border-color: var(--vd-color-secondary-line);
+}
+
+.vd-cta-band .vd-button--outline:hover {
+    border-color: var(--vd-color-secondary);
+}
+
+.vd-cta-band .vd-link-arrow {
+    color: var(--vd-color-secondary);
+}
+
+/* ── 9. Footer ───────────────────────────────────────────────────────────── */
+
+.site-footer {
+    margin-top: 3.5rem;
+    padding: 2.75rem 1.5rem 2rem;
+    border-top: 1px solid var(--vd-color-border);
+    animation: fade-up 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.4s both;
+}
+
+.footer-main {
+    gap: 1.5rem 2rem;
+}
+
+.footer-tagline {
+    color: var(--vd-color-text-muted);
+    font-size: 0.9rem;
+    max-width: 34ch;
+}
+
+.footer-links {
+    gap: 1.5rem 2rem;
+}
+
+.footer-link {
+    color: var(--vd-color-text-muted);
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: color var(--vd-motion-fast);
+}
+
+.footer-link:hover {
+    color: var(--vd-color-text);
+}
+
+.footer-bottom {
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--vd-color-border);
+}
+
+.footer-meta {
+    font-size: 0.8125rem;
+    color: var(--vd-color-text-muted);
+}
+
+/* ── 10. Inner pages (dynamic route) ─────────────────────────────────────── */
+
+.id-prompt {
+    color: var(--vd-color-text-muted);
+    font-size: 0.9rem;
+}
+
+.id-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.5rem;
+    height: 2.5rem;
+    padding: 0 0.7rem;
+    background: var(--vd-color-surface);
+    border: 1px solid var(--vd-color-border);
+    border-radius: var(--vd-radius-md);
+    font-family: var(--vd-font-mono);
+    font-size: 0.875rem;
+    color: var(--vd-color-text);
+    text-decoration: none;
+    transition: border-color var(--vd-motion-fast), color var(--vd-motion-fast),
+        transform var(--vd-motion-fast);
+}
+
+.id-chip:hover {
+    border-color: var(--vd-color-secondary);
+    color: var(--vd-color-secondary);
+    transform: translateY(-2px);
+}
+
+/* ── 11. Motion & responsive ─────────────────────────────────────────────── */
+
+@keyframes fade-up {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.3;
+    }
+}
+
+@media (min-width: 769px) {
+    .nav-menu {
+        display: none;
+    }
+}
+
+@media (max-width: 1024px) {
+    .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+    }
+
+    .hero-sub {
+        max-width: 40ch;
+    }
+
+    .vd-grid--cols-3,
+    .vd-grid--cols-4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-links--desktop {
+        display: none;
+    }
+
+    .nav-toggle-btn {
+        display: flex;
+    }
+
+    .hero-grid {
+        padding-top: 2.75rem;
+        gap: 2.5rem;
+    }
+
+    .vd-stats--cols-4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .vd-cta-band {
+        padding: 2.25rem 1.5rem;
+    }
+
+    .site-footer {
+        padding: 2.25rem 1rem 1.75rem;
+    }
+}
+
+@media (max-width: 640px) {
+
+    .vd-grid--cols-2,
+    .vd-grid--cols-3,
+    .vd-grid--cols-4 {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-grid {
+        gap: 2.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .nav-inner {
+        padding: 0 0.75rem;
+    }
+
+    .vd-stat-value {
+        font-size: 2rem;
+    }
+}
