@@ -34,7 +34,7 @@ Then edit `.env`:
 ```dotenv
 DEEPSEEK_API_KEY=sk-...
 DEEPSEEK_BASE_URL=https://litellm-database-production-6802.up.railway.app/v1
-DEEPSEEK_MODEL=deepseek/deepseek-v4-flash-0731
+DEEPSEEK_MODEL=deepseek-v4-flash
 ```
 
 | Variable            | Purpose                                                        |

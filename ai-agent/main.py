@@ -14,7 +14,7 @@ Two providers are wired up (see provider.py):
 
       DEEPSEEK_API_KEY=sk-...
       DEEPSEEK_BASE_URL=https://.../v1
-      DEEPSEEK_MODEL=deepseek/deepseek-v4-flash-0731
+      DEEPSEEK_MODEL=deepseek-v4-flash
 
   Copy ``.env.example`` to ``.env`` and fill in the key to switch to the live
   model. Point ``DEEPSEEK_BASE_URL`` at any OpenAI-compatible endpoint to use a
@@ -65,7 +65,7 @@ register_provider("deepseek", "provider.DeepSeekProvider")
 
 # Pick a real model when a key is present; otherwise fall back to the offline
 # demo so the template still runs with zero setup.
-DEEPSEEK_MODEL = os.getenv("DEEPSEEK_MODEL", "deepseek/deepseek-v4-flash-0731")
+DEEPSEEK_MODEL = os.getenv("DEEPSEEK_MODEL", "deepseek-v4-flash")
 if os.getenv("DEEPSEEK_API_KEY"):
     MODEL = f"deepseek:{DEEPSEEK_MODEL}"
     MODEL_LABEL = DEEPSEEK_MODEL

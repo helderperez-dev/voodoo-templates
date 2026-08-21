@@ -11,7 +11,7 @@ Two providers are registered in ``main.py``:
 
       DEEPSEEK_API_KEY=sk-...
       DEEPSEEK_BASE_URL=https://.../v1
-      DEEPSEEK_MODEL=deepseek/deepseek-v4-flash-0731
+      DEEPSEEK_MODEL=deepseek-v4-flash
 
 Both walk the same tool-call loop: the provider returns a ``[TOOL: name]``
 request, the agent executes the tool through the shared registry, and the
@@ -170,7 +170,7 @@ class DeepSeekProvider(LLMProvider):
     name = "deepseek"
 
     def __init__(
-        self, model: str = "deepseek/deepseek-v4-flash-0731", **kwargs: Any
+        self, model: str = "deepseek-v4-flash", **kwargs: Any
     ) -> None:
         super().__init__(model, **kwargs)
         try:
