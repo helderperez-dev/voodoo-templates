@@ -29,6 +29,9 @@ body {
     display: inline-block;
     flex-shrink: 0;
     vertical-align: middle;
+    /* Framework reset (img, svg { max-width: 100% }) can squeeze SVG icons
+       inside narrow flex containers like the menu button. */
+    max-width: none;
 }
 
 /* Thin, subtle scrollbars. */
