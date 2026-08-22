@@ -19,7 +19,7 @@ from voodoo import (
 )
 from voodoo.seo import SEO
 
-from app.agent import MODEL_LABEL, MODEL_SUB, agent
+from app.ai.agent import MODEL_LABEL, MODEL_SUB, agent
 
 prompt = state("What time is it?")
 

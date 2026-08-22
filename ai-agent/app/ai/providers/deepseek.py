@@ -1,21 +1,15 @@
-"""LLM providers for the Voodoo AI Agent template.
+"""A live provider for any OpenAI-compatible endpoint.
 
-Two providers are registered in ``main.py``:
+``deepseek:<model>`` talks to a DeepSeek model served through a LiteLLM
+gateway (or any OpenAI-compatible URL — OpenRouter, Ollama, vLLM, …). It
+reads its credentials from the environment, loaded from ``.env``:
 
-* ``demo:demo`` — fully offline. Performs one deterministic tool call, then
-  answers. Used as the fallback so the template runs with zero setup.
+    DEEPSEEK_API_KEY=sk-...
+    DEEPSEEK_BASE_URL=https://.../v1
+    DEEPSEEK_MODEL=deepseek-v4-flash
 
-* ``deepseek:<model>`` — a real provider that talks to any OpenAI-compatible
-  endpoint (here a DeepSeek model served through a LiteLLM gateway). It reads
-  its credentials from the environment, loaded from ``.env``:
-
-      DEEPSEEK_API_KEY=sk-...
-      DEEPSEEK_BASE_URL=https://.../v1
-      DEEPSEEK_MODEL=deepseek-v4-flash
-
-Both walk the same tool-call loop: the provider returns a ``[TOOL: name]``
-request, the agent executes the tool through the shared registry, and the
-provider then composes the final answer.
+Native OpenAI tool calls are translated into the agent's ``[TOOL: ...]``
+convention so the existing loop executes them through the shared registry.
 """
 
 from __future__ import annotations
@@ -33,10 +27,9 @@ from voodoo.ai.providers import (
     ProviderEvent,
     ProviderResponse,
 )
-from voodoo.ai.providers.mock import MockProvider
 from voodoo.core.errors import ConfigurationError
 
-__all__ = ["DemoProvider", "DeepSeekProvider"]
+__all__ = ["DeepSeekProvider"]
 
 
 def _patch_macos_version() -> None:
@@ -68,55 +61,6 @@ def _patch_macos_version() -> None:
 
 
 _patch_macos_version()
-
-
-def _word_count(text: str) -> int:
-    return len(str(text).split())
-
-
-class DemoProvider(MockProvider):
-    """Deterministic provider that performs one tool call, then answers."""
-
-    name = "demo"
-
-    async def complete(
-        self, messages: list[Message], **kwargs: Any
-    ) -> ProviderResponse:
-        # Once a tool result is present, compose the final answer from it.
-        for msg in reversed(messages):
-            if msg.get("role") == "tool":
-                result = msg.get("content", "")
-                content = f"The tool returned: {result}. Here is your answer."
-                break
-        else:
-            # No tool result yet — ask the agent to call ``get_time``.
-            content = "[TOOL: get_time]"
-
-        tokens_in = sum(_word_count(m.get("content", "")) for m in messages)
-        return ProviderResponse(
-            content=content,
-            model=self.model,
-            tokens_in=tokens_in,
-            tokens_out=_word_count(content),
-            cost=0.0,
-            finish_reason="stop",
-        )
-
-    def describe(self) -> ModelDescriptor:
-        """Advertise tool use so introspection reflects reality."""
-        return ModelDescriptor(
-            provider=self.name,
-            model=self.model,
-            modalities=["text"],
-            context_window=8192,
-            tool_use=True,
-            structured_output=False,
-            streaming=False,
-            reasoning=False,
-            vision=False,
-            audio=False,
-            embeddings=False,
-        )
 
 
 def _to_openai_tools(tools: list[dict[str, Any]] | None) -> list[dict[str, Any]]:

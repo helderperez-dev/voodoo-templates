@@ -5,14 +5,17 @@ Run:
 
 Project layout:
 
-    main.py         entry point: loads .env, registers providers, boots the app
-    app/            the application package
-      agent.py      the Agent (demo or deepseek) + realtime mesh handlers
-      provider.py   DemoProvider + DeepSeekProvider
-      tools.py      the ``@tool`` functions the agent can call
-      page.py       the chat page (folder-based routing -> /)
+    main.py              entry point: loads .env, boots the app
+    app/                 the application package
+      page.py            the chat page (folder-based routing -> /)
+      ai/                the AI layer
+        agent.py         the Agent (demo or deepseek) + realtime mesh handlers
+        tools.py         the ``@tool`` functions the agent can call
+        providers/       one module per model provider
+          demo.py        the offline demo provider
+          deepseek.py    the live OpenAI-compatible provider
 
-Two providers are wired up (see provider.py):
+Two providers are wired up (see ``app/ai/providers/``):
 
 * ``demo:demo`` — fully offline; performs one deterministic tool call, then
   answers. Used automatically when no API key is set, so the template runs
@@ -33,7 +36,6 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from voodoo import App
-from voodoo.ai.providers import register_provider
 from voodoo.routing.api import api
 
 # Load .env before reading provider credentials (voodoo also loads it, but we
@@ -46,18 +48,17 @@ load_dotenv(Path(__file__).resolve().with_name(".env"))
 # and pages are unaffected).
 api.run_through_runtime = False
 
-# Register both providers so they resolve as ``demo:demo`` and ``deepseek:<model>``.
-register_provider("demo", "app.provider.DemoProvider")
-register_provider("deepseek", "app.provider.DeepSeekProvider")
-
-# Import the agent module, which pulls in the tools (``app/tools.py``) and
-# registers the realtime mesh handlers. The chat page lives in ``app/page.py``
-# and is discovered automatically by folder-based routing.
+# Import the AI layer: ``app.ai.providers`` registers the model providers,
+# ``app.ai.agent`` builds the Agent + realtime mesh handlers (and pulls in
+# ``app.ai.tools``). The chat page lives in ``app/page.py`` and is discovered
+# automatically by folder-based routing.
 #
-# NOTE: ``import app.agent`` binds the name ``app`` to the *package*, so this
-# must come BEFORE ``app = App()`` — otherwise the ASGI app object (exported
-# as ``main:app`` for ``voodoo dev``) would be shadowed by the package module.
-import app.agent  # noqa: E402, F401
+# NOTE: these ``import app.*`` statements bind the name ``app`` to the
+# *package*, so they must come BEFORE ``app = App()`` — otherwise the ASGI app
+# object (exported as ``main:app`` for ``voodoo dev``) would be shadowed by
+# the package module.
+import app.ai.providers  # noqa: E402, F401
+import app.ai.agent  # noqa: E402, F401
 
 app = App()
 
