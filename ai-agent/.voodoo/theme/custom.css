@@ -49,11 +49,15 @@ body {
 
 .sidebar-brand {
     padding: 1rem 1rem 0.6rem;
-    font-weight: var(--vd-weight-semibold);
-    font-size: 0.95rem;
-    color: var(--vd-color-text);
-    letter-spacing: -0.01em;
-    white-space: nowrap;
+    display: flex;
+    align-items: center;
+}
+
+.brand-logo {
+    height: 1.35rem;
+    width: auto;
+    display: block;
+    filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.35));
 }
 
 .new-chat {

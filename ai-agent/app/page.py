@@ -367,7 +367,12 @@ def page(request):
     ui = Div(
         # ── Sidebar ───────────────────────────────────────────────────
         Div(
-            Html('<div class="sidebar-brand">✦&nbsp;Voodoo&nbsp;AI</div>'),
+            Html(
+                '<div class="sidebar-brand">'
+                '<img class="brand-logo" src="/public/voodoo-logo-white.png" '
+                'alt="Voodoo AI" />'
+                "</div>"
+            ),
             Button("＋ New chat", onclick="newChat()", class_="new-chat"),
             Html(_chat_list_html(chat_id)),
             Html(f'<div class="sidebar-foot">⚡ {_html_escape(MODEL_LABEL)}</div>'),
