@@ -15,14 +15,15 @@ voodoo dev          # -> http://localhost:8000
 Open http://localhost:8000 and start chatting. The agent calls tools like
 `get_time`, then composes a final answer from the tool result — and its
 activity streams into a "thinking" bubble (spinner + live log) over the
-WebSocket transport.
+WebSocket transport. Each conversation gets a clean URL — `/chat/<id>` —
+which you can bookmark, share, or reload to restore the history.
 
 ## Chat history sidebar
 
 - **New chat** — start a fresh conversation; the first message becomes its
   title.
-- **History list** — click any chat to reopen it; messages are persisted
-  locally in `.data/chat.db` (SQLite).
+- **History list** — click any chat to reopen it (URL becomes `/chat/<id>`);
+  messages are persisted locally in `.data/chat.db` (SQLite).
 - **Delete** — hover a chat and hit 🗑; deleting the open chat returns you to
   the landing state.
 - **Collapse** — the ☰ button hides the sidebar on desktop (state is
