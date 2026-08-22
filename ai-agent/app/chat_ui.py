@@ -34,7 +34,7 @@ import itertools
 import re
 from html import escape as _html_escape
 
-from voodoo import Badge, Button, Div, Heading, Input, Text, event, ws_manager
+from voodoo import Badge, Button, Div, Input, Text, event, ws_manager
 from voodoo.seo import SEO
 from voodoo.ui import Html
 
@@ -466,10 +466,6 @@ def render_page(chat_id: str | None = None):
             Div(
                 Button(Html(_icon("menu", 18)), onclick="toggleSidebar()",
                        class_="menu-btn", title="Toggle sidebar"),
-                Div(
-                    Heading("AI Assistant", level=1, class_="chat-title"),
-                    class_="chat-header-text",
-                ),
                 Div(
                     Badge(MODEL_LABEL),
                     class_="chat-header-model",

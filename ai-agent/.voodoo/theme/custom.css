@@ -276,18 +276,6 @@ body {
     color: var(--vd-color-text);
 }
 
-.chat-header-text {
-    flex: 1;
-    min-width: 0;
-}
-
-.chat-title {
-    font-size: 1.1rem;
-    margin: 0;
-    font-weight: var(--vd-weight-semibold);
-    letter-spacing: -0.01em;
-}
-
 .chat-header-model {
     display: flex;
     align-items: center;
