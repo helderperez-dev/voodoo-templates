@@ -3,12 +3,8 @@
 An AI agent with tool calling, streaming, and a realtime trace — all rendered
 from Python, no hand-written JavaScript.
 
-It ships with **two providers** and picks automatically:
-
-- **`deepseek:<model>`** — a real model served through an OpenAI-compatible
-  (LiteLLM) endpoint. Used when a key is present in `.env`.
-- **`demo:demo`** — fully offline, deterministically performs one real tool
-  call. Used as the fallback so the template runs with zero setup.
+It ships with one live provider, **`deepseek:<model>`** — a real model served
+through an OpenAI-compatible (LiteLLM) endpoint, configured via `.env`.
 
 ## Run
 
@@ -39,7 +35,7 @@ DEEPSEEK_MODEL=deepseek-v4-flash
 
 | Variable            | Purpose                                                        |
 | ------------------- | -------------------------------------------------------------- |
-| `DEEPSEEK_API_KEY`  | API key for the endpoint. When unset, the demo provider is used. |
+| `DEEPSEEK_API_KEY`  | API key for the endpoint. |
 | `DEEPSEEK_BASE_URL` | Any OpenAI-compatible base URL (defaults to the OpenAI API).    |
 | `DEEPSEEK_MODEL`    | Model id passed to the endpoint.                                |
 
@@ -57,20 +53,17 @@ vLLM, etc. — with no code changes.
   `@tool` in the shared `ToolRegistry`. The agent gets them by name via
   `tools=[...]`.
 - `app/ai/providers/` defines one module per provider:
-  - `demo.py` — `DemoProvider`, fully offline; first returns `[TOOL: get_time]`,
-    then answers from the tool result.
   - `deepseek.py` — `DeepSeekProvider`, a `LLMProvider` subclass that wraps
     `openai.AsyncOpenAI`, translates the agent's tool specs into OpenAI
     function-call form, and maps native tool calls back to the agent's
     `[TOOL: ...]` convention.
-- `app/ai/agent.py` selects the model based on whether `DEEPSEEK_API_KEY` is
-  set, builds the `Agent`, and handles mesh events (`agent.started`,
+- `app/ai/agent.py` builds the `Agent` on the live `deepseek:<model>` provider,
+  and handles mesh events (`agent.started`,
   `agent.tool.started`, `agent.completed`) with `@mesh.on(...)`, pushing them
   to the browser with `ws_manager.broadcast_append(...)`.
-- `main.py` loads `.env`, imports `app.ai.providers` (which registers both
-  providers via `register_provider(...)`, resolving as `demo:demo` and
-  `deepseek:<model>`), then imports `app.ai.agent` (which pulls in
-  `app.ai.tools`).
+- `main.py` loads `.env`, imports `app.ai.providers` (which registers the
+  `deepseek` provider via `register_provider(...)`), then imports
+  `app.ai.agent` (which pulls in `app.ai.tools`).
 - `app/page.py` renders the chat UI and wires the input/button to the agent
   with `@event` handlers. The final answer is patched into the DOM with
   `ws_manager.broadcast_patch(...)` after `await agent.run(...)`.
@@ -88,8 +81,8 @@ agent = Agent(
 )
 ```
 
-Supported providers include `openai:*`, `anthropic:*`, `mock:*`, and the
-bundled `demo:*`. See the framework docs for the full list and env-var names.
+Supported providers include `openai:*`, `anthropic:*`, and `mock:*`. See the
+framework docs for the full list and env-var names.
 
 ## Stream tokens as they arrive
 
@@ -106,7 +99,6 @@ app/                 # application package (folder-based routing)
     agent.py         # Agent + model selection + realtime mesh handlers
     tools.py         # the @tool functions the agent can call
     providers/       # one module per model provider
-      demo.py        # offline demo provider
       deepseek.py    # live OpenAI-compatible provider
 .env.example         # template for the DeepSeek credentials
 voodoo.toml          # app config

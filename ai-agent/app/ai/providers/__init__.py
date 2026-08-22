@@ -7,7 +7,6 @@ prefix in ``Agent(model="<name>:<model>")``.
 
 from voodoo.ai.providers import register_provider
 
-register_provider("demo", "app.ai.providers.demo.DemoProvider")
 register_provider("deepseek", "app.ai.providers.deepseek.DeepSeekProvider")
 
 __all__ = ["register_provider"]

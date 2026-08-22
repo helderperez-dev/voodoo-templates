@@ -9,20 +9,13 @@ Project layout:
     app/                 the application package
       page.py            the chat page (folder-based routing -> /)
       ai/                the AI layer
-        agent.py         the Agent (demo or deepseek) + realtime mesh handlers
+        agent.py         the Agent + realtime mesh handlers
         tools.py         the ``@tool`` functions the agent can call
         providers/       one module per model provider
-          demo.py        the offline demo provider
           deepseek.py    the live OpenAI-compatible provider
 
-Two providers are wired up (see ``app/ai/providers/``):
-
-* ``demo:demo`` — fully offline; performs one deterministic tool call, then
-  answers. Used automatically when no API key is set, so the template runs
-  with zero setup.
-
-* ``deepseek:<model>`` — a real DeepSeek model served through an
-  OpenAI-compatible (LiteLLM) endpoint. Credentials come from ``.env``:
+The agent runs on ``deepseek:<model>`` — a real DeepSeek model served through
+an OpenAI-compatible (LiteLLM) endpoint. Credentials come from ``.env``:
 
       DEEPSEEK_API_KEY=sk-...
       DEEPSEEK_BASE_URL=https://.../v1

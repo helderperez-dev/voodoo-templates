@@ -1,7 +1,7 @@
 """Agent setup — model selection, the ``Agent`` instance, and realtime logging.
 
-Picks a live ``deepseek:<model>`` when ``DEEPSEEK_API_KEY`` is set in ``.env``,
-otherwise falls back to the offline ``demo:demo`` provider.
+Builds the agent on the live ``deepseek:<model>`` provider, configured through
+``.env`` (``DEEPSEEK_API_KEY`` / ``DEEPSEEK_BASE_URL`` / ``DEEPSEEK_MODEL``).
 
 Mesh handlers below stream agent activity to the browser log over the
 WebSocket transport (``ws_manager``).
@@ -17,14 +17,9 @@ from app.ai import tools  # noqa: F401  (imported for its @tool registrations)
 __all__ = ["agent", "MODEL", "MODEL_LABEL", "MODEL_SUB"]
 
 DEEPSEEK_MODEL = os.getenv("DEEPSEEK_MODEL", "deepseek-v4-flash")
-if os.getenv("DEEPSEEK_API_KEY"):
-    MODEL = f"deepseek:{DEEPSEEK_MODEL}"
-    MODEL_LABEL = DEEPSEEK_MODEL
-    MODEL_SUB = "DeepSeek · tool calling · live"
-else:
-    MODEL = "demo:demo"
-    MODEL_LABEL = "demo:demo"
-    MODEL_SUB = "offline · tool calling · zero network"
+MODEL = f"deepseek:{DEEPSEEK_MODEL}"
+MODEL_LABEL = DEEPSEEK_MODEL
+MODEL_SUB = "DeepSeek · tool calling · live"
 
 
 agent = Agent(
