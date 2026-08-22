@@ -306,8 +306,10 @@ _CLIENT_SCRIPT = """
         var shell = document.getElementById('app-shell');
         if (!shell) return;
         if (window.innerWidth <= 768) {
+            shell.classList.remove('sidebar-collapsed');
             shell.classList.toggle('sidebar-open');
         } else {
+            shell.classList.remove('sidebar-open');
             shell.classList.toggle('sidebar-collapsed');
             try {
                 localStorage.setItem('voodoo.sidebar',
@@ -361,10 +363,19 @@ _CLIENT_SCRIPT = """
         var shell = document.getElementById('app-shell');
         if (shell) {
             try {
-                if (localStorage.getItem('voodoo.sidebar') === 'collapsed') {
+                if (window.innerWidth > 768 &&
+                        localStorage.getItem('voodoo.sidebar') === 'collapsed') {
                     shell.classList.add('sidebar-collapsed');
                 }
             } catch (e) {}
+            // Keep each viewport mode's classes clean across resizes.
+            window.addEventListener('resize', function () {
+                if (window.innerWidth <= 768) {
+                    shell.classList.remove('sidebar-collapsed');
+                } else {
+                    shell.classList.remove('sidebar-open');
+                }
+            });
         }
 
         var scroller = document.getElementById('chat-scroll');

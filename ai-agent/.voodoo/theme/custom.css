@@ -74,9 +74,11 @@ body {
     z-index: 40;
 }
 
-.app-shell.sidebar-collapsed .sidebar {
-    width: 0;
-    border-right: none;
+@media (min-width: 769px) {
+    .app-shell.sidebar-collapsed .sidebar {
+        width: 0;
+        border-right: none;
+    }
 }
 
 .sidebar-brand {
