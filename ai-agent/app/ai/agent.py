@@ -3,8 +3,8 @@
 Builds the agent on the live ``deepseek:<model>`` provider, configured through
 ``.env`` (``DEEPSEEK_API_KEY`` / ``DEEPSEEK_BASE_URL`` / ``DEEPSEEK_MODEL``).
 
-Mesh handlers below stream agent activity to the browser log over the
-WebSocket transport (``ws_manager``).
+Mesh handlers below stream agent activity to the browser over the WebSocket
+transport (``ws_manager``).
 """
 
 import os
@@ -37,19 +37,11 @@ agent = Agent(
 # Realtime — mesh events -> browser log over WebSocket
 # ───────────────────────────────────────────────────────────────────────
 
-@mesh.on("agent.started")
-async def on_agent_started(payload):
-    await ws_manager.broadcast_append(
-        "agent-log",
-        f'<div class="log-line"><span class="log-dot"></span>run started · {payload["model"]}</div>',
-    )
-
-
 @mesh.on("agent.tool.started")
 async def on_tool_started(payload):
     await ws_manager.broadcast_append(
         "agent-log",
-        f'<div class="log-line">⚙ tool → {payload["tool"]}</div>',
+        f'<div class="log-line">🔧 {payload["tool"]}</div>',
     )
 
 
@@ -57,5 +49,5 @@ async def on_tool_started(payload):
 async def on_agent_completed(payload):
     await ws_manager.broadcast_append(
         "agent-log",
-        f'<div class="log-line log-line--ok"><span class="log-dot"></span>done · {payload["tokens_out"]} tokens</div>',
+        f'<div class="log-line log-line--ok">✓ {payload["tokens_out"]} tokens</div>',
     )
