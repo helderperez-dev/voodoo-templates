@@ -1,7 +1,7 @@
 # Voodoo AI Agent
 
-An AI agent with tool calling, streaming, and a realtime trace — all rendered
-from Python, no hand-written JavaScript.
+A ChatGPT/Claude-style AI chat with tool calling, a realtime trace, and chat
+history — all rendered from Python, no hand-written JavaScript.
 
 It ships with one live provider, **`deepseek:<model>`** — a real model served
 through an OpenAI-compatible (LiteLLM) endpoint, configured via `.env`.
@@ -12,9 +12,21 @@ through an OpenAI-compatible (LiteLLM) endpoint, configured via `.env`.
 voodoo dev          # -> http://localhost:8000
 ```
 
-Open http://localhost:8000 and click **Run**. The agent calls `get_time`, then
-composes a final answer from the tool result — and its activity streams into
-the browser log in realtime over the WebSocket transport.
+Open http://localhost:8000 and start chatting. The agent calls tools like
+`get_time`, then composes a final answer from the tool result — and its
+activity streams into a "thinking" bubble (spinner + live log) over the
+WebSocket transport.
+
+## Chat history sidebar
+
+- **New chat** — start a fresh conversation; the first message becomes its
+  title.
+- **History list** — click any chat to reopen it; messages are persisted
+  locally in `.data/chat.db` (SQLite).
+- **Delete** — hover a chat and hit 🗑; deleting the open chat returns you to
+  the landing state.
+- **Collapse** — the ☰ button hides the sidebar on desktop (state is
+  remembered) and turns it into an off-canvas overlay on mobile.
 
 ## Use a real model (DeepSeek via `.env`)
 
@@ -67,6 +79,8 @@ vLLM, etc. — with no code changes.
 - `app/page.py` renders the chat UI and wires the input/button to the agent
   with `@event` handlers. The final answer is patched into the DOM with
   `ws_manager.broadcast_patch(...)` after `await agent.run(...)`.
+- `app/chat_store.py` persists chats and messages to a local SQLite database
+  (`.data/chat.db`, WAL mode) with a fresh connection per call.
 
 ## Swap in another framework provider
 
