@@ -53,22 +53,22 @@ vLLM, etc. — with no code changes.
 
 ## How it works
 
-- `tools.py` registers `get_time`, `roll_dice`, and `count_words` with `@tool`
+- `app/tools.py` registers `get_time`, `roll_dice`, and `count_words` with `@tool`
   in the shared `ToolRegistry`. The agent gets them by name via `tools=[...]`.
-- `provider.py` defines two providers:
+- `app/provider.py` defines two providers:
   - `DemoProvider` — offline; first returns `[TOOL: get_time]`, then answers
     from the tool result.
   - `DeepSeekProvider` — a `LLMProvider` subclass that wraps
     `openai.AsyncOpenAI`, translates the agent's tool specs into OpenAI
     function-call form, and maps native tool calls back to the agent's
     `[TOOL: ...]` convention.
-- `agent.py` selects the model based on whether `DEEPSEEK_API_KEY` is set,
+- `app/agent.py` selects the model based on whether `DEEPSEEK_API_KEY` is set,
   builds the `Agent`, and handles mesh events (`agent.started`,
   `agent.tool.started`, `agent.completed`) with `@mesh.on(...)`, pushing them
   to the browser with `ws_manager.broadcast_append(...)`.
 - `main.py` loads `.env`, registers both providers via
   `register_provider(...)` so they resolve as `demo:demo` and
-  `deepseek:<model>`, then imports `agent` (which pulls in `tools`).
+  `deepseek:<model>`, then imports `app.agent` (which pulls in `app.tools`).
 - `app/page.py` renders the chat UI and wires the input/button to the agent
   with `@event` handlers. The final answer is patched into the DOM with
   `ws_manager.broadcast_patch(...)` after `await agent.run(...)`.
@@ -98,10 +98,11 @@ Replace `agent.run(...)` with `agent.stream(...)` and patch the output for each
 
 ```
 main.py              # entry point: env, providers, app boot
-tools.py             # the @tool functions the agent can call
-agent.py             # Agent + model selection + realtime mesh handlers
-provider.py          # demo + deepseek providers (tool-call loop)
-app/page.py          # the chat page (folder-based routing -> /)
+app/                 # application package (folder-based routing)
+  agent.py           # Agent + model selection + realtime mesh handlers
+  provider.py        # demo + deepseek providers (tool-call loop)
+  tools.py           # the @tool functions the agent can call
+  page.py            # the chat page (folder-based routing -> /)
 .env.example         # template for the DeepSeek credentials
 voodoo.toml          # app config
 .voodoo/theme/       # theme snapshot + bespoke styles

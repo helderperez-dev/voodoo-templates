@@ -9,7 +9,7 @@ requires-python = ">=3.12"
 dependencies = ["voodoo-framework>=1.18.0"]
 
 [tool.setuptools]
-# The agent + tools live in `main.py` (a module, not a package). Disable
-# flat-layout auto-discovery so setuptools doesn't try to package `app/`
-# or `public/` (neither exists here, but this keeps the template future-proof).
+# This is a Voodoo project: `main.py` is the entry point and the app code
+# lives in the `app/` package (folder-based routing). Disable flat-layout
+# auto-discovery so setuptools doesn't try to package it.
 packages = []

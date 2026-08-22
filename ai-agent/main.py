@@ -5,11 +5,12 @@ Run:
 
 Project layout:
 
-    main.py        entry point: loads .env, registers providers, boots the app
-    tools.py       the ``@tool`` functions the agent can call
-    agent.py       the Agent (demo or deepseek) + realtime mesh handlers
-    provider.py    DemoProvider + DeepSeekProvider (see provider.py)
-    app/page.py    the chat page (folder-based routing)
+    main.py         entry point: loads .env, registers providers, boots the app
+    app/            the application package
+      agent.py      the Agent (demo or deepseek) + realtime mesh handlers
+      provider.py   DemoProvider + DeepSeekProvider
+      tools.py      the ``@tool`` functions the agent can call
+      page.py       the chat page (folder-based routing -> /)
 
 Two providers are wired up (see provider.py):
 
@@ -45,16 +46,20 @@ load_dotenv(Path(__file__).resolve().with_name(".env"))
 # and pages are unaffected).
 api.run_through_runtime = False
 
-app = App()
-
 # Register both providers so they resolve as ``demo:demo`` and ``deepseek:<model>``.
-register_provider("demo", "provider.DemoProvider")
-register_provider("deepseek", "provider.DeepSeekProvider")
+register_provider("demo", "app.provider.DemoProvider")
+register_provider("deepseek", "app.provider.DeepSeekProvider")
 
-# Import the agent module, which pulls in the tools (``tools.py``) and
+# Import the agent module, which pulls in the tools (``app/tools.py``) and
 # registers the realtime mesh handlers. The chat page lives in ``app/page.py``
 # and is discovered automatically by folder-based routing.
-import agent  # noqa: E402, F401
+#
+# NOTE: ``import app.agent`` binds the name ``app`` to the *package*, so this
+# must come BEFORE ``app = App()`` — otherwise the ASGI app object (exported
+# as ``main:app`` for ``voodoo dev``) would be shadowed by the package module.
+import app.agent  # noqa: E402, F401
+
+app = App()
 
 
 if __name__ == "__main__":

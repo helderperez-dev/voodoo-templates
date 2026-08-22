@@ -12,7 +12,7 @@ import os
 from voodoo import Agent, ws_manager
 from voodoo.mesh import mesh
 
-import tools  # noqa: F401  (imported for its @tool registrations)
+from app import tools  # noqa: F401  (imported for its @tool registrations)
 
 __all__ = ["agent", "MODEL", "MODEL_LABEL", "MODEL_SUB"]
 
