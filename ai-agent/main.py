@@ -22,6 +22,7 @@ from voodoo import (
     Div,
     Flex,
     Heading,
+    Html,
     Icon,
     Markdown,
     MessageList,
@@ -135,16 +136,19 @@ async def chat_area_html(chat_id: int | None) -> str:
 
 
 def shell_html(main_html: str, list_html: str) -> str:
-    """The app frame: sidebar (history) + main area."""
+    """The app frame: sidebar (history) + main area.
+
+    Fragments arrive pre-rendered; ``Html`` embeds them without escaping.
+    """
     return Flex(
         Sidebar(
             Stack(
                 Button("＋ New chat", on_click="new_chat"),
-                Div(list_html, id="chat-list"),
+                Div(Html(list_html), id="chat-list"),
                 gap="sm",
             ),
         ),
-        Div(main_html, class_="vd-chat-main"),
+        Div(Html(main_html), class_="vd-chat-main"),
         class_="vd-app-shell",
     ).render()
 
