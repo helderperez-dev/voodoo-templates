@@ -1,6 +1,5 @@
 """The application package.
 
-Folder-based routing imports every ``page.py`` it finds (``app/page.py`` →
-``/``). Everything else — the ``app/ai/`` layer (agent, tools, providers) — is
-ordinary Python imported explicitly from ``main.py`` and ``app/page.py``.
+The whole app lives in ``main.py`` (models, pages, events, agent); this
+package only hosts the tool registrations in ``app/ai/tools.py``.
 """

@@ -1,10 +1,12 @@
 # Voodoo AI Agent
 
-A ChatGPT/Claude-style AI chat with tool calling, a realtime trace, and chat
-history — all rendered from Python, no hand-written JavaScript.
+A ChatGPT-style AI chat with tool calling and persistent history — one
+Python file (`main.py`, ~285 lines), **zero hand-written CSS, zero inline
+JavaScript, zero custom provider classes**. Everything is a Voodoo framework
+primitive.
 
-It ships with one live provider, **`deepseek:<model>`** — a real model served
-through an OpenAI-compatible (LiteLLM) endpoint, configured via `.env`.
+The live model (DeepSeek, or any OpenAI-compatible endpoint) is configured
+entirely in `voodoo.toml` + `.env` — the `[ai]` block. No provider code.
 
 ## Run
 
@@ -13,26 +15,12 @@ voodoo dev          # -> http://localhost:8000
 ```
 
 Open http://localhost:8000 and start chatting. The agent calls tools like
-`get_time`, then composes a final answer from the tool result — and its
-activity streams into a "thinking" bubble (spinner + live log) over the
-WebSocket transport. Each conversation gets a clean URL — `/chat/<id>` —
-which you can bookmark, share, or reload to restore the history.
-
-## Chat history sidebar
-
-- **New chat** — start a fresh conversation; the first message becomes its
-  title.
-- **History list** — click any chat to reopen it (URL becomes `/chat/<id>`);
-  messages are persisted locally in `.data/chat.db` (SQLite).
-- **Delete** — hover a chat and hit 🗑; deleting the open chat returns you to
-  the landing state.
-- **Collapse** — the ☰ button hides the sidebar on desktop (state is
-  remembered) and turns it into an off-canvas overlay on mobile.
+`get_time`, then composes the final answer (native tool calling — no text
+markers). Every conversation has a clean URL — `/chat/<id>` — bookmarkable
+and restorable on reload. Messages persist in Voodoo's default SQLite
+database (`.voodoo/state/data.db`).
 
 ## Use a real model (DeepSeek via `.env`)
-
-The live provider reads its credentials from environment variables loaded from
-`.env`:
 
 ```bash
 cp .env.example .env
@@ -42,80 +30,57 @@ Then edit `.env`:
 
 ```dotenv
 DEEPSEEK_API_KEY=sk-...
-DEEPSEEK_BASE_URL=https://litellm-database-production-6802.up.railway.app/v1
-DEEPSEEK_MODEL=deepseek-v4-flash
+DEEPSEEK_BASE_URL=https://api.deepseek.com/v1   # or any OpenAI-compatible gateway
 ```
 
-| Variable            | Purpose                                                        |
-| ------------------- | -------------------------------------------------------------- |
-| `DEEPSEEK_API_KEY`  | API key for the endpoint. |
-| `DEEPSEEK_BASE_URL` | Any OpenAI-compatible base URL (defaults to the OpenAI API).    |
-| `DEEPSEEK_MODEL`    | Model id passed to the endpoint.                                |
+The model itself is declared in `voodoo.toml`:
 
-Because the provider talks plain OpenAI chat-completions, you can point
-`DEEPSEEK_BASE_URL` at any compatible gateway — DeepSeek, OpenRouter, Ollama,
-vLLM, etc. — with no code changes.
+```toml
+[ai]
+provider = "openai"                                # OpenAI-compatible client
+model = "deepseek-chat"                            # any model id
+base_url = "${DEEPSEEK_BASE_URL:https://api.deepseek.com/v1}"
+api_key = "${DEEPSEEK_API_KEY}"
+```
 
-> **Dependencies**: the provider uses the `openai` SDK and `python-dotenv`,
-> both of which ship as dependencies of `voodoo-framework`, so a normal
-> `voodoo new` / `.venv` install already has them.
+Because the framework talks plain OpenAI chat-completions, you can point
+`base_url` at any compatible gateway — DeepSeek, OpenRouter, Ollama, vLLM —
+with no code changes.
 
 ## How it works
 
-- `app/ai/tools.py` registers `get_time`, `roll_dice`, and `count_words` with
-  `@tool` in the shared `ToolRegistry`. The agent gets them by name via
-  `tools=[...]`.
-- `app/ai/providers/` defines one module per provider:
-  - `deepseek.py` — `DeepSeekProvider`, a `LLMProvider` subclass that wraps
-    `openai.AsyncOpenAI`, translates the agent's tool specs into OpenAI
-    function-call form, and maps native tool calls back to the agent's
-    `[TOOL: ...]` convention.
-- `app/ai/agent.py` builds the `Agent` on the live `deepseek:<model>` provider,
-  and handles mesh events (`agent.started`,
-  `agent.tool.started`, `agent.completed`) with `@mesh.on(...)`, pushing them
-  to the browser with `ws_manager.broadcast_append(...)`.
-- `main.py` loads `.env`, imports `app.ai.providers` (which registers the
-  `deepseek` provider via `register_provider(...)`), then imports
-  `app.ai.agent` (which pulls in `app.ai.tools`).
-- `app/page.py` renders the chat UI and wires the input/button to the agent
-  with `@event` handlers. The final answer is patched into the DOM with
-  `ws_manager.broadcast_patch(...)` after `await agent.run(...)`.
-- `app/chat_store.py` persists chats and messages to a local SQLite database
-  (`.data/chat.db`, WAL mode) with a fresh connection per call.
+- **`[ai]` config → Agent** — `Agent()` (no arguments!) resolves its model,
+  base URL, and API key from the `[ai]` block. That's the whole provider
+  setup.
+- **`app/ai/tools.py`** registers `get_time`, `roll_dice`, `count_words`
+  with `@tool`; the agent gets them by name via `tools=[...]`.
+- **Native tool calling** — the framework's `ToolCall` protocol carries
+  structured tool requests (and streams their deltas); the agent executes,
+  appends the result, and loops to the final answer.
+- **ORM queries** — chats/messages are `Model` subclasses; history uses
+  `Model.where(...).order_by(...)` and a `FK[Chat]` cascade delete. No raw
+  SQL anywhere.
+- **Chat UI primitives** — `Sidebar`, `MessageList`, `ChatMessage`,
+  `Composer`, `Icon`, `Markdown`, `StreamingText` are server components
+  styled by the theme system. Enter-to-send, auto-grow, and auto-scroll ship
+  in the framework's client SDK.
+- **Realtime** — `@event` handlers run on WebSocket messages and patch the
+  DOM with `ws_manager.broadcast_patch(...)`; no page reloads.
+- **Multi-turn** — each send replays the stored transcript into
+  `agent.run(text, history=[...])`, so the model sees the full conversation.
 
-## Swap in another framework provider
+## Swap the model
 
-Set the relevant provider key, change the model string, and drop the
-`register_provider(...)` line:
-
-```python
-agent = Agent(
-    model="openai:gpt-4o",
-    tools=["get_time", "roll_dice", "count_words"],
-    system_prompt="You are a helpful assistant.",
-)
-```
-
-Supported providers include `openai:*`, `anthropic:*`, and `mock:*`. See the
-framework docs for the full list and env-var names.
-
-## Stream tokens as they arrive
-
-Replace `agent.run(...)` with `agent.stream(...)` and patch the output for each
-`text` event to get a word-by-word typewriter effect.
+Change the `[ai]` block in `voodoo.toml` — e.g. `model = "gpt-4o"` with
+`base_url = ""` for OpenAI proper — or use a routing alias
+(`model = "best"`). Nothing else changes; see the framework docs.
 
 ## Project layout
 
 ```
-main.py              # entry point: env, providers, app boot
-app/                 # application package (folder-based routing)
-  page.py            # the chat page (folder-based routing -> /)
-  ai/                # the AI layer
-    agent.py         # Agent + model selection + realtime mesh handlers
-    tools.py         # the @tool functions the agent can call
-    providers/       # one module per model provider
-      deepseek.py    # live OpenAI-compatible provider
-.env.example         # template for the DeepSeek credentials
-voodoo.toml          # app config
-.voodoo/theme/       # theme snapshot + bespoke styles
+main.py              # the whole app: models, pages, events, agent
+app/ai/tools.py      # the @tool functions the agent can call
+voodoo.toml          # [ai] provider config (model, base_url, api key)
+.env.example         # template for the endpoint credentials
+.voodoo/theme/       # theme snapshot (swap with `voodoo theme use ...`)
 ```

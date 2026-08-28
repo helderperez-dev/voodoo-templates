@@ -1,22 +1,26 @@
 [app]
-name = "voodoo-app"
+name = "ai-agent"
+
+# AI — zero-code provider setup (the framework resolves everything from here).
+# ``provider = "openai"`` targets any OpenAI-compatible endpoint via
+# ``base_url`` (DeepSeek, OpenRouter, Together, …). The API key interpolates
+# from .env / the environment at load time.
+[ai]
+provider = "openai"
+model = "${DEEPSEEK_MODEL:deepseek-v4-flash}"
+base_url = "${DEEPSEEK_BASE_URL:https://api.deepseek.com/v1}"
+api_key = "${DEEPSEEK_API_KEY}"
 
 # Theme
 # -----
-# The project theme lives in `.voodoo/theme/`:
-#   theme.json  — a snapshot of the built-in `default` preset (minimalist
-#                 Apple × Linear × Vercel × Raycast look: near-black zinc
-#                 surfaces and an indigo accent).
-#   custom.css  — bespoke chrome, injected after the generated component CSS.
-#
-# When `preset` is omitted (below), Voodoo resolves `.voodoo/theme/theme.json`
-# first, then falls back to the built-in default. Switching themes is just
-# regenerating that directory:
-#
-#   voodoo theme list
-#   voodoo theme use <name|path|url>
-#
-# Built-in presets are zero-network — the default theme uses the system font
-# stack, so no webfonts need loading.
+# The project theme lives in `.voodoo/theme/`; with no ``preset`` set,
+# Voodoo resolves `.voodoo/theme/theme.json` then falls back to the
+# built-in default (near-black zinc surfaces, indigo accent).
 
 [theme]
+
+# Database
+# --------
+# Chat history uses Voodoo's data layer (Chat/Message models). No
+# [database] override is set, so user tables are created in Voodoo's
+# default SQLite database at `.voodoo/state/data.db` (git-ignored).
