@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "voodoo-mcp-server"
 version = "0.1.0"
 requires-python = ">=3.12"
-dependencies = ["voodoo-framework>=1.18.0"]
+dependencies = ["voodoo-framework>=2.7.0,<3"]
 
 [tool.setuptools]
 # The MCP tools live in `main.py` (a module, not a package). Disable
