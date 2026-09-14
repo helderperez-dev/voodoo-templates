@@ -17,8 +17,8 @@ voodoo dev          # -> http://localhost:8000
 Open http://localhost:8000 and start chatting. The agent calls tools like
 `get_time`, then composes the final answer (native tool calling — no text
 markers). Every conversation has a clean URL — `/chat/<id>` — bookmarkable
-and restorable on reload. Messages persist in Voodoo's default SQLite
-database (`.voodoo/state/data.db`).
+and restorable on reload. Messages persist in Voodoo's Store-first runtime at
+`.voodoo/application.vstore`.
 
 ## Use a real model (DeepSeek via `.env`)
 
@@ -60,6 +60,9 @@ with no code changes.
 - **ORM queries** — chats/messages are `Model` subclasses; history uses
   `Model.where(...).order_by(...)` and a `FK[Chat]` cascade delete. No raw
   SQL anywhere.
+- **Store-first durability** — model state is stored in
+  `.voodoo/application.vstore` by default. SQLite/PostgreSQL are explicit
+  adapters rather than hidden defaults.
 - **Chat UI primitives** — `Sidebar`, `MessageList`, `ChatMessage`,
   `Composer`, `Icon`, `Markdown`, `StreamingText` are server components
   styled by the theme system. Enter-to-send, auto-grow, and auto-scroll ship
@@ -78,9 +81,10 @@ Change the `[ai]` block in `voodoo.toml` — e.g. `model = "gpt-4o"` with
 ## Project layout
 
 ```
-main.py              # the whole app: models, pages, events, agent
-app/ai/tools.py      # the @tool functions the agent can call
-voodoo.toml          # [ai] provider config (model, base_url, api key)
-.env.example         # template for the endpoint credentials
-.voodoo/theme/       # theme snapshot (swap with `voodoo theme use ...`)
+main.py                    # the whole app: models, pages, events, agent
+app/ai/tools.py            # the @tool functions the agent can call
+voodoo.toml                # [ai] provider config (model, base_url, api key)
+.env.example               # template for endpoint credentials
+.voodoo/application.vstore # local durable application infrastructure
+.voodoo/theme/             # theme snapshot (swap with `voodoo theme use ...`)
 ```
