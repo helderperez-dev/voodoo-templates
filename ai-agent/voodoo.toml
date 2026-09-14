@@ -19,8 +19,8 @@ api_key = "${DEEPSEEK_API_KEY}"
 
 [theme]
 
-# Database
-# --------
-# Chat history uses Voodoo's data layer (Chat/Message models). No
-# [database] override is set, so user tables are created in Voodoo's
-# default SQLite database at `.voodoo/state/data.db` (git-ignored).
+# Store-first durability
+# ----------------------
+# Chat history uses Voodoo's data layer (Chat/Message models). No provider
+# override is required: Voodoo 2.7 stores application state in the default
+# `.voodoo/application.vstore`. SQLite/PostgreSQL remain explicit adapters.
