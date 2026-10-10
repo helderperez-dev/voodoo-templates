@@ -109,7 +109,7 @@ jobs:
           path: /tmp/voodoo-templates-sbom.json
       - name: Attest template release evidence
         if: github.event_name == 'push'
-        uses: actions/attest-build-provenance@v2
+        uses: actions/attest-build-provenance@v4
         with:
           subject-path: |
             /tmp/voodoo-templates-manifest.json
