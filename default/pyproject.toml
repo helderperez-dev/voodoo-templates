@@ -10,7 +10,7 @@ dependencies = ["voodoo-framework>=3.2,<3.3"]
 
 [project.optional-dependencies]
 dev = [
-    "mypy>=1.11,<2",
+    "mypy>=2.4.0,<3",
     "pytest>=8,<9",
     "ruff>=0.6,<1",
 ]
