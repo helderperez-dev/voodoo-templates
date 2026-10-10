@@ -97,13 +97,13 @@ jobs:
       - run: python scripts/check_source_sync.py --framework-root voodoo/src/voodoo/scaffold/default
       - name: Generate deterministic template manifest
         run: python scripts/release_manifest.py --output /tmp/voodoo-templates-manifest.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: voodoo-templates-release-manifest
           path: /tmp/voodoo-templates-manifest.json
       - name: Generate template SBOM
         run: python scripts/bundle_sbom.py --output /tmp/voodoo-templates-sbom.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: voodoo-templates-sbom
           path: /tmp/voodoo-templates-sbom.json
@@ -193,7 +193,7 @@ jobs:
           PY
       - name: Upload generated-app browser artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: generated-app-browser-${{ matrix.python-version }}
           path: /tmp/voodoo-template-${{ matrix.python-version }}.png
