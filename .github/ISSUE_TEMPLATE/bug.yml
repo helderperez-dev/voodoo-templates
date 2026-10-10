@@ -1,0 +1,17 @@
+name: Template issue
+description: Report a generated-project or parity issue.
+title: "bug(template): "
+labels: [bug, template]
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: Framework/template versions
+    validations:
+      required: true
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+    validations:
+      required: true

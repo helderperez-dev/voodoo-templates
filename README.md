@@ -7,7 +7,8 @@ The default scaffold is the canary for the current public Voodoo experience. It 
 ## Policy
 
 - `default/` uses only stable, recommended Voodoo APIs.
-- Fresh scaffolds resolve the latest published `voodoo-framework` release; the generated project's lockfile owns reproducibility after creation.
+- Fresh scaffolds target the current 3.2 compatibility line (`>=3.2,<3.3`);
+  the generated project's lockfile owns reproducibility after creation.
 - Voodoo Store is the default durable application infrastructure (`.voodoo/application.vstore`).
 - SQLite/PostgreSQL/Redis/S3 remain explicit adapters, not scaffold defaults.
 - Specialized templates (agents, MCP, Edge, showcases, etc.) are intentionally deferred until their public APIs are stable enough to support as long-lived scaffolds.

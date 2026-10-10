@@ -6,10 +6,35 @@ build-backend = "setuptools.build_meta"
 name = "voodoo-app"
 version = "0.1.0"
 requires-python = ">=3.12"
-dependencies = ["voodoo-framework>=2.8.2"]
+dependencies = ["voodoo-framework>=3.2,<3.3"]
+
+[project.optional-dependencies]
+dev = [
+    "mypy>=1.11,<2",
+    "pytest>=8,<9",
+    "ruff>=0.6,<1",
+]
+browser = ["playwright>=1.50,<2"]
 
 [tool.setuptools]
 # Folder-based routing: `app/` holds page modules and `public/` holds static
 # assets. Neither is a distributable Python package, so disable flat-layout
 # auto-discovery.
 packages = []
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+extend-exclude = [".voodoo"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.mypy]
+python_version = "3.12"
+ignore_missing_imports = true
+check_untyped_defs = true

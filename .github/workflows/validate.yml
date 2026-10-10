@@ -1,0 +1,200 @@
+name: Validate template
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+
+jobs:
+  platform-contract:
+    name: Template platform contract (${{ matrix.os }}, Python ${{ matrix.python-version }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install published Framework and generated template
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "voodoo-framework>=3.2,<3.3"
+          python -m pip install "voodoo-store>=0.3,<0.4"
+          python -m pip install -e default --no-deps
+          python -m pip install playwright
+          python -m pip install "pip-audit==2.10.1"
+          # python -m pip_audit --progress-spinner off is delegated to the
+          # exact-version environment auditor to exclude only voodoo-app.
+          python scripts/audit_environment.py
+          python -m playwright install chromium
+      - name: Run portable UI and Store contract
+        run: python scripts/platform_contract.py
+      - name: Start and restart generated application
+        run: python scripts/generated_app_contract.py --project default --browser
+
+  default-template:
+    name: Default template (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout Framework scaffold
+        uses: actions/checkout@v4
+        with:
+          repository: helderperez-dev/voodoo
+          path: voodoo
+      - name: Checkout Store binding
+        uses: actions/checkout@v4
+        with:
+          repository: helderperez-dev/voodoo-store
+          path: voodoo-store
+      - name: Checkout Site and Skills contracts
+        uses: actions/checkout@v4
+        with:
+          repository: helderperez-dev/voodoo-site
+          path: voodoo-site
+      - name: Checkout Skills
+        uses: actions/checkout@v4
+        with:
+          repository: helderperez-dev/voodoo-skills
+          path: voodoo-skills
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Build Framework and Store wheels
+        run: |
+          python -m pip install --upgrade pip build maturin
+          python -m build --wheel --outdir /tmp/voodoo-wheels voodoo
+          maturin build --release --out /tmp/voodoo-wheels \
+            --manifest-path voodoo-store/crates/voodoo-store-python/Cargo.toml
+      - name: Install release wheels and generated app
+        run: |
+          python -m pip install /tmp/voodoo-wheels/voodoo_framework-*.whl
+          python -m pip install /tmp/voodoo-wheels/voodoo_store-*.whl
+          python -m pip install -e default --no-deps
+          python -m pip install -e voodoo-site
+          python -m pip install playwright
+          python -m pip install "pip-audit==2.10.1"
+          # python -m pip_audit --progress-spinner off is delegated to the
+          # exact-version environment auditor to exclude only voodoo-app.
+          python scripts/audit_environment.py
+          python -m playwright install --with-deps chromium
+      - run: python scripts/validate.py
+      - run: python scripts/check_parity.py --framework-root voodoo/src/voodoo/scaffold/default
+      - run: python scripts/check_source_sync.py --framework-root voodoo/src/voodoo/scaffold/default
+      - name: Generate deterministic template manifest
+        run: python scripts/release_manifest.py --output /tmp/voodoo-templates-manifest.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: voodoo-templates-release-manifest
+          path: /tmp/voodoo-templates-manifest.json
+      - name: Generate template SBOM
+        run: python scripts/bundle_sbom.py --output /tmp/voodoo-templates-sbom.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: voodoo-templates-sbom
+          path: /tmp/voodoo-templates-sbom.json
+      - name: Attest template release evidence
+        if: github.event_name == 'push'
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: |
+            /tmp/voodoo-templates-manifest.json
+            /tmp/voodoo-templates-sbom.json
+      - name: Validate Site, Skills, and cross-repository source contracts
+        run: |
+          python -m pytest -q voodoo-site/tests
+          python voodoo-skills/scripts/validate.py
+          python voodoo-skills/scripts/check_source_drift.py \
+            --framework-root voodoo \
+            --store-root voodoo-store
+          python -m compileall -q voodoo-site/site_lib voodoo-skills/.github/skills
+      - name: Compile generated route modules
+        run: python -m compileall -q default/app
+      - name: Start generated app and verify persistence
+        working-directory: default
+        env:
+          VOODOO_ENV: test
+          VOODOO_SECRET_KEY: ci-generated-app-secret-key
+          VOODOO_HOST: 127.0.0.1
+          VOODOO_PORT: "8766"
+        run: |
+          python -m uvicorn voodoo.core:app --host 127.0.0.1 --port 8766 > /tmp/voodoo-template.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          python - <<'PY'
+          import time
+          import urllib.request
+          from urllib.error import URLError
+          from pathlib import Path
+
+          for _ in range(30):
+              try:
+                  with urllib.request.urlopen("http://127.0.0.1:8766/", timeout=1) as response:
+                      assert response.status == 200
+                      assert b"Your application" in response.read()
+                      break
+              except (OSError, TimeoutError, URLError):
+                  time.sleep(1)
+          else:
+              raise SystemExit(Path("/tmp/voodoo-template.log").read_text())
+
+          store = Path(".voodoo/application.vstore")
+          assert store.is_file() and store.stat().st_size > 0
+          PY
+          python - <<'PY'
+          from playwright.sync_api import sync_playwright
+
+          with sync_playwright() as playwright:
+              browser = playwright.chromium.launch()
+              page = browser.new_page(viewport={"width": 1280, "height": 800})
+              page.goto("http://127.0.0.1:8766/", wait_until="networkidle")
+              assert "Your application" in page.locator("body").inner_text()
+              page.screenshot(path="/tmp/voodoo-template-${{ matrix.python-version }}.png", full_page=True)
+              browser.close()
+          PY
+          # Restart the generated app and confirm the durable Store survives
+          # the process boundary before the job is considered healthy.
+          kill "$server_pid"
+          wait "$server_pid" 2>/dev/null || true
+          python -m uvicorn voodoo.core:app --host 127.0.0.1 --port 8766 > /tmp/voodoo-template-restart.log 2>&1 &
+          server_pid=$!
+          python - <<'PY'
+          import time
+          import urllib.request
+          from urllib.error import URLError
+          from pathlib import Path
+
+          for _ in range(30):
+              try:
+                  with urllib.request.urlopen("http://127.0.0.1:8766/", timeout=1) as response:
+                      assert response.status == 200
+                      assert b"Your application" in response.read()
+                      break
+              except (OSError, TimeoutError, URLError):
+                  time.sleep(1)
+          else:
+              raise SystemExit(Path("/tmp/voodoo-template-restart.log").read_text())
+          store = Path(".voodoo/application.vstore")
+          assert store.is_file() and store.stat().st_size > 0
+          PY
+      - name: Upload generated-app browser artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-app-browser-${{ matrix.python-version }}
+          path: /tmp/voodoo-template-${{ matrix.python-version }}.png
+          if-no-files-found: warn

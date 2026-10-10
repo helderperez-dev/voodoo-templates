@@ -46,7 +46,7 @@ def page(request):
                         Stack(
                             Flex(
                                 Badge(
-                                    "VOODOO 2.8.2",
+                                    "VOODOO 3.2",
                                     variant="outline",
                                 ),
                                 justify="start",
@@ -209,7 +209,7 @@ def page(request):
                             },
                         ),
                         Text(
-                            "v2.8.2",
+                            "v3.2",
                             tone="muted",
                             css={
                                 "font_size": "0.85rem",
