@@ -20,7 +20,7 @@ jobs:
         os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ["3.12", "3.13"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
@@ -49,24 +49,24 @@ jobs:
       matrix:
         python-version: ["3.12", "3.13"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Checkout Framework scaffold
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: helderperez-dev/voodoo
           path: voodoo
       - name: Checkout Store binding
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: helderperez-dev/voodoo-store
           path: voodoo-store
       - name: Checkout Site and Skills contracts
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: helderperez-dev/voodoo-site
           path: voodoo-site
       - name: Checkout Skills
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: helderperez-dev/voodoo-skills
           path: voodoo-skills
